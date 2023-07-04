@@ -1,0 +1,29 @@
+jwt:
+  secret: A^DJAI@(FHQIS(FHQ*#&*!KK
+
+server:
+  error:
+    path: /user/error
+    whitelabel:
+      enabled: false
+
+Spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/safebusiness
+    password:
+    username: root
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8InnoDBDialect
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        globally_quoted_indentifiers: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+  sql:
+    init:
+      mode: never
+      continue-on-error: true
