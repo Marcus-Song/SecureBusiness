@@ -1,0 +1,71 @@
+<ng-container>
+    <ng-container>
+       <app-navbar></app-navbar>
+       <app-stats></app-stats>
+       <section>
+          <div class="container">
+             <div class="row mt-3">
+                <div class="progress">
+                   <div class="progress-bar bg-success" role="progressbar" aria-valuenow="" aria-valuemin="0" aria-valuemax="100">
+                      5%
+                   </div>
+                 </div>
+                <div class="col">
+                   <h4 class="fw-bold text-start">Customers</h4>
+                </div>
+                <div class="col">
+                   <h4 class="fw-bold text-end"><i style="cursor: pointer;color: green;font-size: 30px;" class="bi bi-file-earmark-excel"></i></h4>
+                </div>
+                <div class="col-xm-12">
+                   <table class="table table-hover">
+                      <thead class="table-dark">
+                          <tr>
+                            <th class="text-center" scope="col">ID</th>
+                            <th scope="col">Photo</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Phone</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Action</th>
+                          </tr>
+                      </thead>
+                      <tbody class="table-body">
+                          <tr class="cell-1">
+                            <th class="text-center">1</th>
+                            <td><img src="https://img.freepik.com/free-icon/user_318-159711.jpg" width="42" height="42" class="rounded-circle" alt="Avatar"></td>
+                            <td>John</td>
+                            <td>john@email.com</td>                          
+                            <td>1234567890</td>
+                            <td>
+                               <span class="badge bg-info">
+                                  ACTIVE
+                               </span>
+                            </td>
+                            <td>INDIVIDUAL</td>
+                            <td>
+                               <button type="button" class="btn btn-info text-white">View</button>
+                            </td>
+                         </tr>
+                      </tbody>
+                  </table>
+                  
+                   <nav aria-label="Page navigation example">
+                      <ul class="pagination justify-content-end">
+                         <li class="page-item pointer">
+                            <a class="page-link">&laquo; Prev</a>
+                         </li>
+                         <li class="page-item pointer">
+                            <a class="page-link">1</a>
+                         </li>
+                         <li  class="page-item pointer">
+                            <a class="page-link">Next &raquo;</a>
+                         </li>
+                      </ul>
+                   </nav>
+                </div>
+             </div>
+          </div>
+       </section>
+    </ng-container>
+ </ng-container>

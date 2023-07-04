@@ -1,0 +1,42 @@
+<!-- Navigation-->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+       <a class="navbar-brand" [routerLink]="['/']">
+           <i style="margin-right: 5px;" class="bi bi-safe"></i>
+           SecureBusiness
+       </a>
+       <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+          aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+       <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+             <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-bs-theme="dark" id="navbarDropdownBlog" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                   Customers
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" data-bs-theme="dark" aria-labelledby="navbarDropdownBlog">
+                   <li><a class="dropdown-item" [routerLink]="['/customers/new']"><i style="padding-right: 8px;" class="bi bi-person-plus-fill"></i>New Customer</a></li>
+                   <li><a class="dropdown-item" [routerLink]="['/customers']"><i style="padding-right: 8px;" class="bi bi-people-fill"></i>All Customers</a></li>
+                </ul>
+             </li>
+             <li class="nav-item dropdown" data-bs-theme="dark">
+               <a class="nav-link dropdown-toggle" id="navbarDropdownBlog" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Invoices
+               </a>
+               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownBlog">
+                  <li><a class="dropdown-item" [routerLink]="['/invoices/new']"><i style="padding-right: 8px;" class="bi bi-receipt"></i>New Invoice</a></li>
+                  <li><a class="dropdown-item" [routerLink]="['/invoices']"><i style="padding-right: 8px;" class="bi bi-receipt-cutoff"></i>All Invoices</a></li>
+               </ul>
+            </li>
+             <li class="nav-item dropdown" data-bs-theme="dark">
+                <a class="nav-link dropdown-toggle" id="navbarDropdownBlog" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="https://img.freepik.com/free-icon/user_318-159711.jpg" alt="john" class="user-avatar-md rounded-circle"></a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownBlog">
+                   <li><a class="dropdown-item" [routerLink]="['/profile']"><i style="padding-right: 8px;" class="bi bi-person-circle"></i>User</a></li>
+                   <li style="cursor: pointer;"><a class="dropdown-item" [routerLink]="['/login']"><i style="padding-right: 8px;" class="bi bi-box-arrow-in-right"></i>Logout</a></li>
+                </ul>
+             </li>
+          </ul>
+       </div>
+    </div>
+ </nav>
