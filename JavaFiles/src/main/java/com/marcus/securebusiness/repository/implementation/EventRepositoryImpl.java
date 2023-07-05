@@ -29,7 +29,7 @@ public class EventRepositoryImpl implements EventRepository {
     @Override
     public void addUserEvent(String email, EventType eventType, String device, String ipAddress) {
         log.info("email: {}, eventType: {}, device: {}, ipAddress: {}",email, eventType, device, ipAddress);
-        jdbc.update(INSERT_EVENT_BY_USER_EMAIL_QUERY, of("email", email, "type", eventType, "device", device, "ipAddress",ipAddress));
+        jdbc.update(INSERT_EVENT_BY_USER_EMAIL_QUERY, of("email", email, "type", eventType.toString(), "device", device, "ipAddress",ipAddress));
     }
 
     @Override

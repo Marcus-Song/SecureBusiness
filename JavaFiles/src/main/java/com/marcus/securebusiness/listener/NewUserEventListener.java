@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import static com.marcus.securebusiness.util.RequestUtils.*;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -17,7 +19,6 @@ public class NewUserEventListener {
 
     @EventListener
     public void onNewUserEvent(NewUserEvent event) {
-        log.info("NewUserEvent is fired");
-        eventService.addUserEvent(event.getEmail(), event.getType(), "Device", "IP Address");
+        eventService.addUserEvent(event.getEmail(), event.getType(), getDevice(request), getIpAddress(request));
     }
 }

@@ -11,6 +11,7 @@ import com.marcus.securebusiness.model.HttpResponse;
 import com.marcus.securebusiness.model.User;
 import com.marcus.securebusiness.model.UserPrincipal;
 import com.marcus.securebusiness.provider.TokenProvider;
+import com.marcus.securebusiness.service.EventService;
 import com.marcus.securebusiness.service.RoleService;
 import com.marcus.securebusiness.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,6 +52,7 @@ import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 public class UserController {
     private final UserService userService;
     private final RoleService roleService;
+    private final EventService eventService;
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
     private final HttpServletRequest request;
@@ -92,7 +94,7 @@ public class UserController {
         return ResponseEntity.ok().headers(headers).body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
-                        .data(of("user", userDTO, "roles", roleService.getRoles()))
+                        .data(of("user", userDTO, "roles", roleService.getRoles(), "events", eventService.getEventByUserId(userDTO.getId())))
                         .message("Profile retrieved")
                         .status(OK)
                         .statusCode(OK.value())
@@ -102,10 +104,11 @@ public class UserController {
     @PatchMapping("/update")
     public ResponseEntity<HttpResponse> updateUser(@RequestBody @Valid UpdateForm user) {
         UserDTO updateUser = userService.updateUserDetails(user);
+        publisher.publishEvent(new NewUserEvent(user.getEmail(), PROFILE_UPDATE));
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
-                        .data(of("user", updateUser))
+                        .data(of("user", updateUser, "roles", roleService.getRoles(), "events", eventService.getEventByUserId(updateUser.getId())))
                         .message("Profile updated")
                         .status(OK)
                         .statusCode(OK.value())
@@ -115,11 +118,13 @@ public class UserController {
     @GetMapping("/verify/code/{email}/{code}")
     public ResponseEntity<HttpResponse> verifyCode(@PathVariable("email") String email, @PathVariable("code") String code) {
         UserDTO userDTO = userService.verifyCode(email, code);
+        publisher.publishEvent(new NewUserEvent(email, LOGIN_ATTEMPT_SUCCESS));
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userDTO, "access_token", tokenProvider.createAccessToken(getUserPrincipal(userDTO))
-                                , "refresh_token", tokenProvider.createRefreshToken(getUserPrincipal(userDTO))))
+                                , "refresh_token", tokenProvider.createRefreshToken(getUserPrincipal(userDTO))
+                                , "events", eventService.getEventByUserId(userDTO.getId())))
                         .message("Login successful")
                         .status(OK)
                         .statusCode(OK.value())
@@ -160,9 +165,11 @@ public class UserController {
     public ResponseEntity<HttpResponse> updatePassword(Authentication authentication, @RequestBody @Valid UpdatePasswordForm form) {
         UserDTO userDTO = getAuthenticatedUser(authentication);
         userService.updatePassword(userDTO.getId(), form.getCurrentPassword(), form.getNewPassword(), form.getConfirmNewPassword());
+        publisher.publishEvent(new NewUserEvent(getEmail(authentication.toString()), PASSWORD_UPDATE));
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
+                        .data(Map.of("user", userService.getUserById(userDTO.getId()), "roles", roleService.getRoles(), "events", eventService.getEventByUserId(userDTO.getId())))
                         .message("Password updated successfully")
                         .status(OK)
                         .statusCode(OK.value())
@@ -186,6 +193,8 @@ public class UserController {
                                                           @PathVariable("password") String password,
                                                           @PathVariable("confirmPassword") String confirmPassword) {
         userService.renewPassword(key, password, confirmPassword);
+        log.info(key);
+        publisher.publishEvent(new NewUserEvent(getEmail(key), PASSWORD_UPDATE));
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
@@ -201,7 +210,7 @@ public class UserController {
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
-                        .data(of("user", userDTO))
+                        .data(of("user", userDTO,"roles", roleService.getRoles(), "events", eventService.getEventByUserId(userDTO.getId())))
                         .message("Please enter a new password.")
                         .status(OK)
                         .statusCode(OK.value())
@@ -215,9 +224,10 @@ public class UserController {
     public ResponseEntity<HttpResponse> updateUserRole(Authentication authentication, @PathVariable("roleName") String roleName) {
         UserDTO userDTO = getAuthenticatedUser(authentication);
         userService.updateUserRole(userDTO.getId(), roleName);
+        publisher.publishEvent(new NewUserEvent(getEmail(authentication.toString()), ROLE_UPDATE));
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
-                        .data(Map.of("user", userService.getUserById(userDTO.getId()), "roles", roleService.getRoles()))
+                        .data(Map.of("user", userService.getUserById(userDTO.getId()), "roles", roleService.getRoles(), "events", eventService.getEventByUserId(userDTO.getId())))
                         .timeStamp(now().toString())
                         .message("Role updated successfully")
                         .status(OK)
@@ -232,9 +242,10 @@ public class UserController {
     public ResponseEntity<HttpResponse> updateSettings(Authentication authentication, @RequestBody @Valid SettingForm form) {
         UserDTO userDTO = getAuthenticatedUser(authentication);
         userService.updateAccountSettings(userDTO.getId(), form.getEnabled(), form.getNotLocked());
+        publisher.publishEvent(new NewUserEvent(getEmail(authentication.toString()), ACCOUNT_SETTING_UPDATE));
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
-                        .data(Map.of("user", userService.getUserById(userDTO.getId()), "roles", roleService.getRoles()))
+                        .data(Map.of("user", userService.getUserById(userDTO.getId()), "roles", roleService.getRoles(), "events", eventService.getEventByUserId(userDTO.getId())))
                         .timeStamp(now().toString())
                         .message("Account settings updated successfully")
                         .status(OK)
@@ -245,9 +256,10 @@ public class UserController {
     @PatchMapping("/togglemfa")
     public ResponseEntity<HttpResponse> toggleMfa(Authentication authentication) {
         UserDTO userDTO = userService.toggleMfa(getAuthenticatedUser(authentication).getEmail());
+        publisher.publishEvent(new NewUserEvent(getEmail(authentication.toString()), MFA_UPDATE));
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
-                        .data(Map.of("user", userDTO, "roles", roleService.getRoles()))
+                        .data(Map.of("user", userDTO, "roles", roleService.getRoles(), "events", eventService.getEventByUserId(userDTO.getId())))
                         .timeStamp(now().toString())
                         .message("Multi-Factor Authentication updated")
                         .status(OK)
@@ -259,9 +271,10 @@ public class UserController {
     public ResponseEntity<HttpResponse> updateProfileImage(Authentication authentication, @RequestParam("image") MultipartFile image) {
         UserDTO userDTO =getAuthenticatedUser(authentication);
         userService.updateImage(userDTO, image);
+        publisher.publishEvent(new NewUserEvent(getEmail(authentication.toString()), PROFILE_PICTURE_UPDATE));
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
-                        .data(Map.of("user", userDTO, "roles", roleService.getRoles()))
+                        .data(Map.of("user", userDTO, "roles", roleService.getRoles(), "events", eventService.getEventByUserId(userDTO.getId())))
                         .timeStamp(now().toString())
                         .message("Profile image updated")
                         .status(OK)
