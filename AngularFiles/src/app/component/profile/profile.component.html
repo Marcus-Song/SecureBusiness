@@ -1,6 +1,6 @@
 <ng-container *ngIf="(profileState$ | async) as state"> <!-- Subscibe the profileState Observerable in profile.component.ts -->
     <ng-container>
-       <app-navbar></app-navbar>
+       <app-navbar [user]="state?.appData?.data?.user"></app-navbar>
        <section>
           <div class="container">
              <nav aria-label="breadcrumb" style="margin-top: 8px;">
@@ -232,7 +232,7 @@
                                   </div>
                                   <div class="col-auto">
                                       <div class="custom-control custom-switch">
-                                          <input type="checkbox" class="custom-control-input" id="activityLog">
+                                          <input type="checkbox" (change)="toggleLogs()" class="custom-control-input" id="activityLog">
                                           <span class="custom-control-label"></span>
                                       </div>
                                   </div>
@@ -242,12 +242,12 @@
                    </div>
                 </div>
              </div>
-             <div class="row">
+             <div *ngIf="(showLogs$ | async)" class="row">
                 <div class="col-xl-12 mt-4">
                    <div class="card" style="border-radius: 8px;">
                       <div class="card-body">
                          <h5 class="card-title">Account Activities</h5>
-                         <h6 class="card-subtitle mb-2 text-muted">Latest activities on your account.                        </h6>
+                         <h6 class="card-subtitle mb-2 text-muted">Latest activities on your account.</h6>
                          <table class="table table-hover">
                             <thead class="table-dark">
                                <tr>
@@ -260,16 +260,20 @@
                                </tr>
                             </thead>
                             <tbody>
-                               <tr >
-                                  <td>Chrome</td>
-                                  <td>192.168.1.209</td>
-                                  <td>01-15-2023 5:25:20</td>
+                               <tr *ngFor="let event of state?.appData?.data?.events">
+                                  <td>{{ event.device }}</td>
+                                  <td>{{ event.ipAddress }}</td>
+                                  <td>{{ event.createdAt | date:'MMMM d, y, h:mm a' }}</td>
                                   <td>
-                                     <span class="badge pill bg-success">
-                                             LOGIN_ATTEMPT_SUCCESS
+                                     <span class="badge pill" [ngClass]="[event.type === EventType.LOGIN_ATTEMPT_SUCCESS ? ' bg-success' : '',
+                                                                           event.type === EventType.LOGIN_ATTEMPT_FAILURE ? ' bg-danger' : '',
+                                                                           event.type === EventType.LOGIN_ATTEMPT ? ' bg-warning' : '',
+                                                                           event.type === EventType.PASSWORD_UPDATE ? ' bg-danger' : '',
+                                                                           event.type === EventType.MFA_UPDATE ? ' bg-warning' : 'bg-secondary']">
+                                       {{ event.type }}
                                      </span>
                                   </td>
-                                  <td>You logged in successfully</td>
+                                  <td>{{ event.description }}</td>
                                   <td>
                                      <button type="button" class="btn btn-sm" style="background-color: #fd5d0d; font-weight: 450;">Report</button>
                                   </td>

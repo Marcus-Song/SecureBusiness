@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
@@ -13,13 +13,17 @@ import { User } from 'src/app/enum/user.profile.enum';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginState$: Observable<LoginState> = of({ dataState: DataState.LOADED });
   private phoneSubject = new BehaviorSubject<string | null>(null);
   private emailSubject = new BehaviorSubject<string | null>(null);
   readonly DataState = DataState;
 
   constructor(private router: Router, private userService: UserService) { }
+
+  ngOnInit(): void {
+    this.userService.isAuthenticated() ? this.router.navigate(['/']) : this.router.navigate(['/login']);
+  }
 
   login(loginForm: NgForm): void {
     this.loginState$ = this.userService.login$(loginForm.value.email, loginForm.value.password)
@@ -35,7 +39,7 @@ export class LoginComponent {
           } else {
             localStorage.setItem(Key.TOKEN, response.data.access_token);
             localStorage.setItem(Key.REFRESH_TOKEN, response.data.refresh_token);
-            localStorage.setItem(User.USER_NAME, response.data.user.firstName + ' ' + response.data.user.lastName);
+            //localStorage.setItem(User.USER_NAME, response.data.user.firstName + ' ' + response.data.user.lastName);
             this.router.navigate(['/']);
             return { dataState: DataState.LOADED, loginSuccess: true };
           }

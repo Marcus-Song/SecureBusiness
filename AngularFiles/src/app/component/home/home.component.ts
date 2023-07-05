@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Observable } from 'rxjs';
+import { CustomHttpResponse, Profile, ProfileState } from 'src/app/interface/appstates';
 
 @Component({
   selector: 'app-home',
@@ -6,5 +8,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
-
+  
 }
