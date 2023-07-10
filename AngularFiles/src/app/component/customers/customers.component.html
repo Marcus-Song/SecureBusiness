@@ -1,0 +1,103 @@
+<ng-container *ngIf="(customerState$ | async) as state" [ngSwitch]="state.dataState">
+    <ng-container *ngSwitchCase="DataState.LOADED">
+        <app-navbar [user]="state?.appData?.data?.user"></app-navbar>
+
+        <div class="container">
+
+            <nav aria-label="breadcrumb" style="margin-top: 8px;">
+                <ol class="breadcrumb">
+                   <li class="breadcrumb-item">
+                      <a [routerLink]="['/']">Home</a>
+                   </li>
+                   <li class="breadcrumb-item active"> Customers </li>
+                </ol>
+             </nav>
+
+        <div class="row mt-3">
+        <div class="col" style="padding: 15px;">
+            <h4 class="fs-2 fw-bold text-start">Customers</h4>
+
+            <form #searchForm="ngForm" (ngSubmit)="searchCustomer(searchForm)" class="row g-3">
+            <div class="input-group">
+                <label for="customerName" class="visually-hidden"></label>
+                <input type="text" ngModel name="customerName" #customerName class="form-control">
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-primary text-white"><i class="fa fa-search mr-1"></i> Search</button>
+                </div>
+            </div>
+            </form>
+
+        </div>
+         <div class="col" style="padding: 15px;">
+            <h4 class="fw-bold text-end"><i style="cursor: pointer;color: green;font-size: 30px;" class="bi bi-file-earmark-excel"></i></h4>
+         </div>
+         <div class="col-xm-12">
+            <table class="table table-hover">
+               <thead class="table-dark">
+                   <tr>
+                     <th class="text-center" scope="col">ID</th>
+                     <th scope="col">Photo</th>
+                     <th scope="col">Name</th>
+                     <th scope="col">Email</th>
+                     <th scope="col">Phone</th>
+                     <th scope="col">Status</th>
+                     <th scope="col">Type</th>
+                     <th scope="col">Action</th>
+                   </tr>
+               </thead>
+               <tbody class="table-body">
+                   <tr *ngFor="let customer of state?.appData?.data?.page?.content" class="cell-1">
+                     <th class="text-center">{{ customer.id }}</th>
+                     <td><img [src]= "customer.imageUrl"  width="42" height="42" class="rounded-circle" [alt]= "customer.name" ></td>
+                     <td>{{ customer.name }}</td>
+                     <td>{{ customer.email }}</td>                          
+                     <td>{{ customer.phone }}</td>
+                     <td>
+                        <span class="badge pill"
+                          [ngClass]="[customer.status === CustomerStatus.ACTIVE ? 'bg-success' : '',
+                                      customer.status === CustomerStatus.PENDING ? 'bg-warning' : '',
+                                      customer.status === CustomerStatus.BANNED ? 'bg-danger' : '',
+                                      customer.status === CustomerStatus.INACTIVE ? 'bg-secondary' : '',
+                                      customer.status === CustomerStatus.DRAFT ? 'bg-dark' : '',]">
+                          {{ customer.status }}
+                        </span>
+                     </td>
+                     <td>{{ customer.type }}</td>
+                     <td>
+                        <button type="button" (click)="selectCustomer(customer)" class="btn btn-info text-white">View</button>
+                     </td>
+                  </tr>
+               </tbody>
+           </table>
+
+           
+           
+            <nav *ngIf="state?.appData?.data?.page?.content.length > 0" aria-label="Page navigation example">
+               <ul class="pagination justify-content-end">
+                  <li class="page-item pointer">
+                       <a class="page-link" (click)="goToPage(state?.appData?.data?.page?.number - 1, searchForm.value.customerName)"
+                          [ngClass]="0 == (currentPage$ | async)? 'disabled':'' ">
+                          &laquo; Prev
+                       </a>
+                  </li>
+                  <li *ngFor="let pageNumber of [].constructor(state?.appData?.data?.page?.totalPages);
+                   let i = index;" class="page-item pointer">
+                       <a class="page-link" (click)="goToPage(i, searchForm.value.customerName)" [ngClass]="i == (currentPage$ | async) ? 'active': '' "> 
+                          {{ i+1 }} 
+                       </a>
+                  </li>
+                  <li class="page-item pointer">
+                       <!--(state?.appData?.data?.page?.number + 1 >= state?.appData?.data?.page?.totalPages)-->
+                       <a class="page-link" (click)="goToPage(state?.appData?.data?.page?.number + 1, searchForm.value.customerName)"
+                          [ngClass]="((currentPage$ | async) >= state?.appData?.data?.page?.totalPages - 1)? 'disabled':'' ">
+                          Next &raquo;
+                       </a>
+                  </li>
+               </ul>
+            </nav>
+         </div>
+        </div>
+        </div>
+      
+    </ng-container>
+</ng-container>

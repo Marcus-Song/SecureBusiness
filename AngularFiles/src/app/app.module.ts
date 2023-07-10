@@ -15,6 +15,13 @@ import { HomeComponent } from './component/home/home.component';
 import { NavbarComponent } from './component/navbar/navbar.component';
 import { StatsComponent } from './component/stats/stats.component';
 import { TokenInterceptor } from './interceptor/token.interceptor';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NewcustomerComponent } from './component/newcustomer/newcustomer.component';
+import { CustomersComponent } from './component/customers/customers.component';
+import { InvoiceComponent } from './component/invoice/invoice.component';
+import { InvoicesComponent } from './component/invoices/invoices.component';
+import { NewinvoicesComponent } from './component/newinvoices/newinvoices.component';
 
 @NgModule({
   declarations: [
@@ -28,12 +35,19 @@ import { TokenInterceptor } from './interceptor/token.interceptor';
     HomeComponent,
     NavbarComponent,
     StatsComponent,
+    NewcustomerComponent,
+    CustomersComponent,
+    InvoiceComponent,
+    InvoicesComponent,
+    NewinvoicesComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     FormsModule,      //<----------make sure you have added this.
+    DragDropModule, 
+    BrowserAnimationsModule,
   ],
   providers: [{ provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },],
   bootstrap: [AppComponent]

@@ -6,7 +6,7 @@ import { LoginState } from 'src/app/interface/appstates';
 import { UserService } from 'src/app/service/user.service';
 import { DataState } from 'src/app/enum/datastate.enum';
 import { Key } from 'src/app/enum/key.enum';
-import { User } from 'src/app/enum/user.profile.enum';
+
 
 @Component({
   selector: 'app-login',

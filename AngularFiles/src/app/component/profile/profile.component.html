@@ -21,8 +21,8 @@
                          <i (click)="fileInput.click()" class="bi bi-camera-fill right-position"></i>
                          </span>
                       </div>
-                      <h4 class="text-center">{{ state?.appData?.data?.user?.firstName }} {{ state?.appData?.data?.user?.lastName }}</h4>
-                      <span class="col-auto">Since {{ state?.appData?.data?.user?.createAt | date:"MMMM d, y" }}</span>
+                      <h4 class="text-center fs-4 fw-bold">{{ state?.appData?.data?.user?.firstName }} {{ state?.appData?.data?.user?.lastName }}</h4>
+                      <span class="col-auto" style="padding-left: 20%;">Since {{ state?.appData?.data?.user?.createAt | date:"MMMM d, y" }}</span>
                    </div>
                    <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                       <a class="nav-link active" id="profile" data-bs-toggle="pill" data-bs-target="#profile-tab" aria-selected="true" aria-controls="profile" role="tab">
@@ -44,7 +44,7 @@
                 </div>
                 <div class="tab-content p-4 p-md-5" id="v-pills-tabContent" style="border-left: 1px solid #d4d0d0;">
                    <div class="tab-pane fade show active" id="profile-tab" role="tabpanel" aria-labelledby="profile" style="min-height: 510px;">
-                      <h3 class="mb-4">Profile Settings</h3>
+                      <h3 class="fs-2 fw-bold">Profile Settings</h3>
                       <form #profileForm="ngForm" (ngSubmit)="updateProfile(profileForm)">
                          <input type="hidden" name="id" [ngModel]="state?.appData?.data?.user?.id">
                          <div class="row">
@@ -101,7 +101,7 @@
                       </form>
                    </div>
                    <div class="tab-pane fade" id="password-tab" role="tabpanel" aria-labelledby="password" style="min-height: 510px;">
-                      <h3 class="mb-4">Password Settings</h3>
+                      <h3 class="fs-2 fw-bold">Password Settings</h3>
                       <form #passwordForm="ngForm" (ngSubmit)="updatePassword(passwordForm)">
                          <input type="hidden" name="userId">
                       <div class="row">
@@ -136,7 +136,7 @@
                    </form>
                    </div>
                    <div class="tab-pane fade" id="security-tab" role="tabpanel" aria-labelledby="security" style="min-height: 510px;">
-                      <h3 class="mb-4">Authorization Settings</h3>
+                      <h3 class="fs-2 fw-bold">Authorization Settings</h3>
                       <form #roleForm="ngForm" (ngSubmit)="updateRoles(roleForm)">
                       <div class="row">
                          <div class="col-md-6">
@@ -168,7 +168,7 @@
                    </form>
                    </div>
                    <div class="tab-pane fade" id="application-tab" role="tabpanel" aria-labelledby="application" style="min-height: 510px;">
-                     <h3 class="mb-4">Account Settings</h3>
+                     <h1 class="fs-2 fw-bold">Account Settings</h1>
                      <form #settingsForm="ngForm" (ngSubmit)="updateAccountSettings(settingsForm)">
                         <input type="hidden" name="userId">
                      <div class="row">
@@ -205,8 +205,8 @@
                   </form>
                   </div>
                    <div class="tab-pane fade" id="notification-tab" role="tabpanel" aria-labelledby="notification" style="min-height: 510px;">
-                      <h3 class="mb-4">Authentication Settings</h3>
-                      <p>These settings help keep your account more secure.</p>
+                      <h1 class="fs-2 fw-bold">Authentication Settings</h1>
+                      <p class="fs-5">These settings help keep your account more secure.</p>
                       <div class="list-group mb-5 shadow">
                          <div class="list-group-item">
                              <div class="row align-items-center">
@@ -246,8 +246,8 @@
                 <div class="col-xl-12 mt-4">
                    <div class="card" style="border-radius: 8px;">
                       <div class="card-body">
-                         <h5 class="card-title">Account Activities</h5>
-                         <h6 class="card-subtitle mb-2 text-muted">Latest activities on your account.</h6>
+                         <h1 class="fs-2 fw-bold">Account Activities</h1>
+                         <h2 class="card-subtitle mb-2 text-muted">Latest activities on your account.</h2>
                          <table class="table table-hover">
                             <thead class="table-dark">
                                <tr>

@@ -1,4 +1,5 @@
 import { DataState } from "../enum/datastate.enum"
+import { Customer } from "./customer";
 import { Events } from "./event";
 import { Roles } from "./role";
 import { User } from "./user";
@@ -34,4 +35,13 @@ export interface ProfileState<T> {
     dataState: DataState;
     appData?: T;
     error?: string;
+}
+
+export interface Page {
+    content: Customer[];
+    totalPages: number; 
+    totalElements: number;
+    numberOfElements: number;
+    size: number;
+    number: number;
 }
