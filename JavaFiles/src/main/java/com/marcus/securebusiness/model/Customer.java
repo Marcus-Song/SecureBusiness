@@ -1,6 +1,7 @@
 package com.marcus.securebusiness.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.marcus.securebusiness.enumeration.CustomerStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;

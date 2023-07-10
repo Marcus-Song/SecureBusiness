@@ -2,17 +2,22 @@ package com.marcus.securebusiness.service.implementation;
 
 import com.marcus.securebusiness.model.Customer;
 import com.marcus.securebusiness.model.Invoice;
+import com.marcus.securebusiness.model.Stats;
 import com.marcus.securebusiness.repository.CustomerRepository;
 import com.marcus.securebusiness.repository.InvoiceRepository;
+import com.marcus.securebusiness.rowMapper.StatsRowMapper;
 import com.marcus.securebusiness.service.CustomerService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Map;
 
+import static com.marcus.securebusiness.query.StatsQuery.STATS_QUERY;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.springframework.data.domain.PageRequest.of;
 
@@ -23,6 +28,7 @@ import static org.springframework.data.domain.PageRequest.of;
 public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final InvoiceRepository invoiceRepository;
+    private final NamedParameterJdbcTemplate jdbc;
     @Override
     public Customer createCustomer(Customer customer) {
         customer.setCreateAt(new Date());
@@ -66,10 +72,20 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void addInvoiceToCustomer(Long id, Long invoiceId) {
+    public void addInvoiceToCustomer(Long id, Invoice invoice) {
+        invoice.setInvoiceNumber(randomAlphanumeric(8).toUpperCase());
         Customer customer = customerRepository.findById(id).get();
-        Invoice invoice = invoiceRepository.findById(invoiceId).get();
         invoice.setCustomer(customer);
         invoiceRepository.save(invoice);
+    }
+
+    @Override
+    public Invoice getinvoiceById(Long id) {
+        return invoiceRepository.findById(id).get();
+    }
+
+    @Override
+    public Stats getStats() {
+        return jdbc.queryForObject(STATS_QUERY, Map.of(), new StatsRowMapper());
     }
 }

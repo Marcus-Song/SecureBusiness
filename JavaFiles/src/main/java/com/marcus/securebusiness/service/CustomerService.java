@@ -2,6 +2,7 @@ package com.marcus.securebusiness.service;
 
 import com.marcus.securebusiness.model.Customer;
 import com.marcus.securebusiness.model.Invoice;
+import com.marcus.securebusiness.model.Stats;
 import org.springframework.data.domain.Page;
 
 public interface CustomerService {
@@ -15,5 +16,9 @@ public interface CustomerService {
     // Invoice Functions
     Invoice createInvoice(Invoice invoice);
     Page<Invoice> getInvoices(int page, int size);
-    void addInvoiceToCustomer(Long id, Long invoiceId);
+    void addInvoiceToCustomer(Long id, Invoice invoice);
+
+    Invoice getinvoiceById(Long id);
+
+    Stats getStats();
 }

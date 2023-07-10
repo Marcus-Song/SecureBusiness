@@ -89,9 +89,7 @@ public class UserController {
     @GetMapping("/profile")
     public ResponseEntity<HttpResponse> profile(Authentication authentication) {
         UserDTO userDTO = userService.getUser(getEmail(authentication.getName()));
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Access-Control-Allow-Origin", "http://localhost");
-        return ResponseEntity.ok().headers(headers).body(
+        return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userDTO, "roles", roleService.getRoles(), "events", eventService.getEventByUserId(userDTO.getId())))
