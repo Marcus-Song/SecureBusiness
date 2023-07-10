@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, map, startWith, catchError, of } from 'rxjs';
 import { CustomerStatus } from 'src/app/enum/customer-status';
 import { DataState } from 'src/app/enum/datastate.enum';
 import { ProfileState, CustomHttpResponse, Page } from 'src/app/interface/appstates';
+import { Customer } from 'src/app/interface/customer';
 import { User } from 'src/app/interface/user';
 import { CustomerService } from 'src/app/service/customer.service';
 import { UserService } from 'src/app/service/user.service';
@@ -25,7 +27,7 @@ export class CustomersComponent {
   readonly DataState = DataState;
   readonly CustomerStatus = CustomerStatus;
 
-  constructor(private userService: UserService, private customerService: CustomerService) { }
+  constructor(private router: Router ,private userService: UserService, private customerService: CustomerService) { }
 
   ngOnInit(): void {
     console.log("Loading");
@@ -74,5 +76,9 @@ export class CustomersComponent {
           return of({ dataState: DataState.ERROR, error })
         })
       )
+  }
+
+  selectCustomer(customer: Customer): void {
+    this.router.navigate([`/customers/${customer.id}`]);
   }
 }

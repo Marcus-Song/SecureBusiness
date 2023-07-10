@@ -24,7 +24,7 @@ const routes: Routes = [
   {path: 'profile', component:ProfileComponent, canActivate: [AuthenticationGuard]},
   {path: 'customers', component:CustomersComponent, canActivate: [AuthenticationGuard]},
   {path: 'customers/new', component:NewcustomerComponent, canActivate: [AuthenticationGuard]},
-  {path: 'customer/:id', component:CustomerComponent, canActivate: [AuthenticationGuard]},
+  {path: 'customers/:id', component:CustomerComponent, canActivate: [AuthenticationGuard]},
   {path: 'invoices', component:InvoicesComponent, canActivate: [AuthenticationGuard]},
   {path: 'invoices/new', component:NewinvoicesComponent, canActivate: [AuthenticationGuard]},
   {path: 'invoice/:id/:invoiceNumber', component:InvoiceComponent, canActivate: [AuthenticationGuard]},

@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { EventType } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { EventType, Router } from '@angular/router';
 import { BehaviorSubject, Observable, catchError, map, of, startWith } from 'rxjs';
 import { CustomerStatus } from 'src/app/enum/customer-status';
 import { DataState } from 'src/app/enum/datastate.enum';
@@ -14,7 +14,7 @@ import { UserService } from 'src/app/service/user.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   homeState$: Observable<ProfileState<CustomHttpResponse<Page & User>>>;
   private dataSubject = new BehaviorSubject<CustomHttpResponse<Page & User>>(null);
   private isLoadingSubject = new BehaviorSubject<boolean>(false);
@@ -26,7 +26,7 @@ export class HomeComponent {
   readonly DataState = DataState;
   readonly CustomerStatus = CustomerStatus;
 
-  constructor(private userService: UserService, private customerServie: CustomerService) { }
+  constructor(private router: Router, private userService: UserService, private customerServie: CustomerService) { }
 
   ngOnInit(): void {
     console.log("Loading");
@@ -61,6 +61,6 @@ export class HomeComponent {
   }
 
   selectCustomer(customer: Customer): void {
-    
+    this.router.navigate([`/customers/${customer.id}`]);
   }
 }
