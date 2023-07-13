@@ -16,8 +16,8 @@ import { UserService } from 'src/app/service/user.service';
   styleUrls: ['./customers.component.css']
 })
 export class CustomersComponent {
-  customerState$: Observable<ProfileState<CustomHttpResponse<Page & User>>>;
-  private dataSubject = new BehaviorSubject<CustomHttpResponse<Page & User>>(null);
+  customerState$: Observable<ProfileState<CustomHttpResponse<Page<Customer> & User>>>;
+  private dataSubject = new BehaviorSubject<CustomHttpResponse<Page<Customer> & User>>(null);
   private isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();
   private showLogSubject = new BehaviorSubject<boolean>(false);

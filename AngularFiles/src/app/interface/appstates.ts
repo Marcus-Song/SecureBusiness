@@ -37,8 +37,8 @@ export interface ProfileState<T> {
     error?: string;
 }
 
-export interface Page {
-    content: Customer[];
+export interface Page<T> {
+    content: T[];
     totalPages: number; 
     totalElements: number;
     numberOfElements: number;
@@ -49,4 +49,22 @@ export interface Page {
 export interface CustomerState {
     user: User;
     customer: Customer;
+}
+
+export interface RegisterState {
+    dataState: DataState;
+    registerSuccess?: boolean;
+    error?: string;
+    message?: string;
+}
+
+export type AccountType = 'account' | 'password';
+
+export interface VerifyState {
+    dataState: DataState;
+    verifySuccess?: boolean;
+    error?: string;
+    message?: string;
+    title?: string;
+    type?: AccountType;
 }

@@ -3,3 +3,9 @@ export interface resetPassword {
     newPassword: string;
     confirmNewPassword: string;
 }
+
+export interface renewPassword {
+    userId: number;
+    password: string;
+    confirmPassword: string;
+}

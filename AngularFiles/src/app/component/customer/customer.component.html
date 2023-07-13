@@ -39,7 +39,7 @@
                             <li class="list-group-item d-flex justify-content-between align-items-center" style="font-size: 20px;">
                                 Total Current Invoices
                                 <span class="" style="font-size: 20px;">
-                                    {{state.appData?.data?.customer?.invoices.length}}
+                                    {{ state.appData?.data?.customer?.invoices.length }}
                                 </span>
                             </li>
                             <br>
@@ -54,7 +54,7 @@
                             <li class="list-group-item d-flex justify-content-between align-items-center" style="font-size: 20px;">
                                 Total Billed
                                 <span class="badge bg-success" style="font-size: 20px;">
-                                    $1000
+                                    $ {{ state.appData?.data.customerTotal }}
                                 </span>
                             </li>
                             <br>
@@ -141,16 +141,16 @@
                             <tbody *ngFor="let invoice of state.appData?.data?.customer?.invoices">
                                 <tr>
                                     <td>{{invoice.invoiceNumber}}</td>
-                                    <td>{{invoice.service}}</td>
+                                    <td>{{invoice.services}}</td>
                                     <td>
                                     <span class="badge" [ngClass]="[invoice.status === CustomerStatus.ACTIVE ? 'bg-success' : '',
-                                    invoice.status === CustomerStatus.PENDING ? 'bg-warning' : '',
-                                    invoice.status === CustomerStatus.BANNED ? 'bg-danger' : '',
-                                    invoice.status === CustomerStatus.INACTIVE ? 'bg-secondary' : '',
-                                    invoice.status === CustomerStatus.DRAFT ? 'bg-dark' : '',]">
+                                        invoice.status === 'PAID' ? ' bg-success' : '',
+                                        invoice.status === 'PENDING' ? ' bg-secondary' : '',
+                                        invoice.status === 'CANCELED' ? ' bg-danger' : '',
+                                        invoice.status === 'OVERDUE' ? ' bg-warning' : '', ]">
                                         {{invoice.status}}</span>
                                     </td>
-                                    <td>{{invoice.createdAt}}</td>
+                                    <td>{{invoice.date | date: 'mediumDate' }}</td>
                                     <td>${{invoice.total}}</td>
                                     <td>
                                     <button type="button" [routerLink]="['/invoice', invoice.id, invoice.invoiceNumber]" class="btn btn-info btn-sm">Print</button>

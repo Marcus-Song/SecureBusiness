@@ -5,6 +5,7 @@ import { Observable, catchError, tap, throwError } from 'rxjs';
 import { User } from '../interface/user';
 import { Stats } from '../interface/stats';
 import { Customer } from '../interface/customer';
+import { Invoice } from '../interface/invoice';
 
 @Injectable({
   providedIn: 'root'
@@ -16,8 +17,8 @@ export class CustomerService {
   constructor(private http: HttpClient) { }
 
 
-  customer$ = (page: number = 0) => <Observable<CustomHttpResponse<Page & User & Stats>>>
-    this.http.get<CustomHttpResponse<Page & User & Stats>>(`${this.server}/customer/list?page=${page}`)
+  customer$ = (page: number = 0) => <Observable<CustomHttpResponse<Page<Customer> & User & Stats>>>
+    this.http.get<CustomHttpResponse<Page<Customer> & User & Stats>>(`${this.server}/customer/list?page=${page}`)
       .pipe(
         tap(console.log),
         catchError(this.handleError)
@@ -37,8 +38,8 @@ export class CustomerService {
         catchError(this.handleError)
       );
 
-  searchCustomer$ = (name: string = '', page: number = 0) => <Observable<CustomHttpResponse<Page & User>>>
-    this.http.get<CustomHttpResponse<Page & User>>
+  searchCustomer$ = (name: string = '', page: number = 0) => <Observable<CustomHttpResponse<Page<Customer> & User>>>
+    this.http.get<CustomHttpResponse<Page<Customer> & User>>
       (`${this.server}/customer/search?name=${name}&page=${page}`)
       .pipe(
         tap(console.log),
@@ -47,6 +48,35 @@ export class CustomerService {
 
   update$ = (customer: Customer) => <Observable<CustomHttpResponse<CustomerState>>>
     this.http.post<CustomHttpResponse<CustomerState>>(`${this.server}/customer/update`, customer)
+      .pipe(
+        tap(console.log),
+        catchError(this.handleError)
+      );
+
+  newInvoice$ = () => <Observable<CustomHttpResponse<Customer[] & User>>>
+    this.http.get<CustomHttpResponse<Customer[] & User>>(`${this.server}/customer/invoice/new`)
+      .pipe(
+        tap(console.log),
+        catchError(this.handleError)
+      );
+
+  createInvoice$ = (customerId: number, invoice: Invoice) => <Observable<CustomHttpResponse<Customer[] & User>>>
+    this.http.post<CustomHttpResponse<Customer[] & User>>
+      (`${this.server}/customer/invoice/add-to-customer/${customerId}`, invoice)
+      .pipe(
+        tap(console.log),
+        catchError(this.handleError)
+      );
+
+  invoices$ = (page: number = 0) => <Observable<CustomHttpResponse<Page<Invoice> & User>>>
+    this.http.get<CustomHttpResponse<Page<Invoice> & User>>(`${this.server}/customer/invoice/list?page=${page}`)
+      .pipe(
+        tap(console.log),
+        catchError(this.handleError)
+      );
+
+  invoice$ = (invoiceId: number) => <Observable<CustomHttpResponse<Customer & User & Invoice>>>
+    this.http.get<CustomHttpResponse<Customer & User & Invoice>>(`${this.server}/customer/invoice/get/${invoiceId}`)
       .pipe(
         tap(console.log),
         catchError(this.handleError)
