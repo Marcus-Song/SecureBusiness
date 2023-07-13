@@ -3,10 +3,7 @@ package com.marcus.securebusiness.controller;
 import com.marcus.securebusiness.dto.UserDTO;
 import com.marcus.securebusiness.event.NewUserEvent;
 import com.marcus.securebusiness.exception.ApiException;
-import com.marcus.securebusiness.form.LoginForm;
-import com.marcus.securebusiness.form.SettingForm;
-import com.marcus.securebusiness.form.UpdateForm;
-import com.marcus.securebusiness.form.UpdatePasswordForm;
+import com.marcus.securebusiness.form.*;
 import com.marcus.securebusiness.model.HttpResponse;
 import com.marcus.securebusiness.model.User;
 import com.marcus.securebusiness.model.UserPrincipal;
@@ -69,7 +66,7 @@ public class UserController {
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userDTO))
-                        .message("User created")
+                        .message(String.format("New user created with email: %s", user.getEmail()))
                         .status(CREATED)
                         .statusCode(CREATED.value())
                         .build());
@@ -202,6 +199,20 @@ public class UserController {
                         .build());
     }
 
+    @PutMapping("/new/password")
+    public ResponseEntity<HttpResponse> resetPasswordWithKey(@RequestBody @Valid NewPasswordForm form) {
+        userService.updatePassword(form.getUserId(), form.getPassword(), form.getConfirmPassword());
+        publisher.publishEvent(new NewUserEvent(userService.getUserById(form.getUserId()).getEmail(), PASSWORD_UPDATE));
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .message("Password reset successfully")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    // TODO send 2 verification email
     @GetMapping("/verify/password/{key}")
     public ResponseEntity<HttpResponse> verifyPasswordUrl(@PathVariable("key") String key) {
         UserDTO userDTO = userService.verifyPasswordKey(key);
@@ -216,6 +227,20 @@ public class UserController {
     }
 
     // END - Reset password when user not login
+    // BEGIN - Verify new account
+
+    @GetMapping("/verify/account/{key}")
+    public ResponseEntity<HttpResponse> verifyAccount(@PathVariable("key") String key) {
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .message(userService.verifyAccount(key).isEnabled() ? "Account already verified" : "Account now verified")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    //END - Verify new account
     // BEGIN - Update roles
 
     @PatchMapping("/update/role/{roleName}")
@@ -286,20 +311,6 @@ public class UserController {
     }
 
     // END - Update settings
-    // BEGIN - Verify new account
-
-    @GetMapping("/verify/account/{key}")
-    public ResponseEntity<HttpResponse> verifyAccount(@PathVariable("key") String key) {
-        return ResponseEntity.ok().body(
-                HttpResponse.builder()
-                        .timeStamp(now().toString())
-                        .message(userService.verifyAccount(key).isEnabled() ? "Account already verified" : "Account now verified")
-                        .status(OK)
-                        .statusCode(OK.value())
-                        .build());
-    }
-
-    //END - Verify new account
     //BEGIN - Refresh access token
     @GetMapping("/refresh/token")
     public ResponseEntity<HttpResponse> refreshToken(HttpServletRequest request) {

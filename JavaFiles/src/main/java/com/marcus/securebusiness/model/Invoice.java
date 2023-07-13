@@ -3,10 +3,12 @@ package com.marcus.securebusiness.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.marcus.securebusiness.enumeration.InvoiceStatus;
+import com.marcus.securebusiness.util.StringListConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
 import java.util.Date;
 
 import static jakarta.persistence.GenerationType.*;
@@ -23,7 +25,10 @@ public class Invoice {
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
     private String invoiceNumber;
-    private String services;
+    @Convert(converter = StringListConverter.class)
+    private List<String> services;
+    @Convert(converter = StringListConverter.class)
+    private List<String> price;
     private Date date;
     private InvoiceStatus status;
     private double total;

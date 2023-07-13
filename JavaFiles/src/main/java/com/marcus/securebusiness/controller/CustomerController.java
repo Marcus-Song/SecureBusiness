@@ -50,7 +50,8 @@ public class CustomerController {
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(userDTO.getEmail()),
-                                "customer", customerService.getCustomerById(id)))
+                                "customer", customerService.getCustomerById(id),
+                                "customerTotal", customerService.getCustomerTotal(id)))
                         .message("Customer retrieved")
                         .status(OK)
                         .statusCode(OK.value())
@@ -119,7 +120,7 @@ public class CustomerController {
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(userDTO.getEmail()),
-                                "customer", customerService.getInvoices(page.orElse(0), size.orElse(10))))
+                                "page", customerService.getInvoices(page.orElse(0), size.orElse(10))))
                         .message("Invoices retrieved")
                         .status(OK)
                         .statusCode(OK.value())
@@ -141,11 +142,13 @@ public class CustomerController {
 
     @GetMapping("/invoice/get/{id}")
     public ResponseEntity<HttpResponse> getInvoice(@AuthenticationPrincipal UserDTO userDTO, @PathVariable("id") Long id) {
+        Invoice invoice = customerService.getinvoiceById(id);
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(userDTO.getEmail()),
-                                "invoice", customerService.getinvoiceById(id)))
+                                "invoice", invoice,
+                                "customer", invoice.getCustomer()))
                         .message("Invoice retrieved")
                         .status(OK)
                         .statusCode(OK.value())
@@ -160,7 +163,7 @@ public class CustomerController {
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(userDTO.getEmail()),
                                 "customer", customerService.getCustomers()))
-                        .message("Invoice added")
+                        .message(String.format("Invoice added to customer with Id: %s", id))
                         .status(OK)
                         .statusCode(OK.value())
                         .build());

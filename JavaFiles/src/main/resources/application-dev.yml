@@ -27,3 +27,24 @@ Spring:
     init:
       mode: never
       continue-on-error: true
+
+spring:
+  mail:
+    host: smtp.gmail.com
+    default-encoding: utf-8
+    port: 465
+    username: songweifengmarcus@gmail.com
+    password: qiycuqyhgzhxxdxd
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          writetimeout: 5000
+          connectiontimeout: 5000
+          timeout: 5000
+          auth: true
+          starttls:
+            enable: true
+            required: true
+        ssl:
+          enable: true

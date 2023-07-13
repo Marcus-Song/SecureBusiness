@@ -10,6 +10,7 @@ import com.marcus.securebusiness.model.UserPrincipal;
 import com.marcus.securebusiness.repository.RoleRepository;
 import com.marcus.securebusiness.repository.UserRepository;
 import com.marcus.securebusiness.rowMapper.UserRowMapper;
+import com.marcus.securebusiness.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -36,6 +37,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import static com.marcus.securebusiness.enumeration.RoleType.ROLE_USER;
 import static com.marcus.securebusiness.enumeration.VerificationType.ACCOUNT;
@@ -57,6 +59,7 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
     private final NamedParameterJdbcTemplate jdbc;
     private final RoleRepository<Role> roleRepository;
     private final BCryptPasswordEncoder encoder;
+    private final EmailService emailService;
 
     @Override
     public User create(User user) {
@@ -77,6 +80,7 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             // Save URL in verification table
             jdbc.update(INSERT_VERIFICATION_QUERY, Map.of("userId", user.getId(), "url",verificationUrl));
             // Send email to user with verification URL
+            sendEmail(user.getFirstName(), user.getEmail(), verificationUrl, ACCOUNT);
             //emailService.sendVerificationUrl(user.getFirstName(), user.getEmail(), verificationUrl, ACCOUNT);
             user.setEnabled(false);
             user.setNotLocked(true);
@@ -89,6 +93,15 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    private void sendEmail(String firstName, String email, String verificationUrl, VerificationType verificationType) {
+        CompletableFuture<Void> future = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                try { emailService.sendVerificationEmail(firstName, email, verificationUrl, ACCOUNT); }
+                catch (Exception exception) { throw new ApiException("An error occur while sending email in a different thread"); }
+            }
+        });
+    }
 
 
     @Override
@@ -145,6 +158,7 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
 
     private String getVerificationUrl(String key, String type) {
         return fromCurrentContextPath().path("/user/verify/" + type + "/" + key).toUriString();
+        //return ("http://localhost:4200/user/verify/" + type + "/" + key);
     }
 
     @Override
@@ -193,6 +207,20 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             User user = get(userId);
             if (!encoder.matches(currentPassword, user.getPassword())) throw new ApiException("The current password is incorrect!");
             jdbc.update(UPDATE_USER_PASSWORD_BY_ID_QUERY, Map.of("id", userId, "password", encoder.encode(newPassword)));
+            // If any error, throw exception with proper message
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException("An error occurred during update password.");
+        }
+    }
+
+    @Override
+    public void updatePassword(Long userId, String newPassword, String confirmNewPassword) {
+        try {
+            if (!newPassword.equals(confirmNewPassword)) throw new ApiException("Two password must be the same!");
+            User user = get(userId);
+            jdbc.update(UPDATE_USER_PASSWORD_BY_ID_QUERY, Map.of("id", userId, "password", encoder.encode(newPassword)));
+            jdbc.update(DELETE_PASSWORD_VERIFICATION_BY_USER_ID_QUERY, Map.of("userId", userId));
             // If any error, throw exception with proper message
         } catch (Exception exception) {
             log.error(exception.getMessage());

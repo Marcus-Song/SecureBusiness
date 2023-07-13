@@ -34,6 +34,7 @@ public interface UserRepository <T extends User>{
     T getUserById(Long userId);
 
     void updatePassword(Long id, String currentPassword, String newPassword, String confirmNewPassword);
+    void updatePassword(Long userId, String newPassword, String confirmNewPassword);
 
     void updateAccountSettings(Long userId, Boolean enabled, Boolean notLocked);
 

@@ -21,4 +21,5 @@ public interface CustomerService {
     Invoice getinvoiceById(Long id);
 
     Stats getStats();
+    Double getCustomerTotal(Long customerId);
 }

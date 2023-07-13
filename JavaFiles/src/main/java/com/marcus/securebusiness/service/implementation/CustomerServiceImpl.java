@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.Map;
 
-import static com.marcus.securebusiness.query.StatsQuery.STATS_QUERY;
+import static com.marcus.securebusiness.query.StatsQuery.*;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.springframework.data.domain.PageRequest.of;
 
@@ -76,16 +76,29 @@ public class CustomerServiceImpl implements CustomerService {
         invoice.setInvoiceNumber(randomAlphanumeric(8).toUpperCase());
         Customer customer = customerRepository.findById(id).get();
         invoice.setCustomer(customer);
+        log.info(invoice.getServices().toString(), invoice.getPrice().toString());
         invoiceRepository.save(invoice);
     }
 
     @Override
     public Invoice getinvoiceById(Long id) {
+        //log.info(String.valueOf(invoiceRepository.findById(id).stream().toList().toString()));
         return invoiceRepository.findById(id).get();
     }
 
     @Override
     public Stats getStats() {
         return jdbc.queryForObject(STATS_QUERY, Map.of(), new StatsRowMapper());
+    }
+
+    @Override
+    public Double getCustomerTotal(Long customerId) {
+        try {
+            Double total = jdbc.queryForObject(GET_CUSTOMER_TOTAL_QUERY, Map.of("id", customerId), Double.class);
+            if (total == null) total = 0.0;
+            return total;
+        } catch (Exception exception) {
+            throw exception;
+        }
     }
 }
