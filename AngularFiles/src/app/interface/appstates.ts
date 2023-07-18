@@ -24,6 +24,7 @@ export interface CustomHttpResponse<T> {
 }
 
 export interface Profile {
+    customer: Customer;
     user: User;
     events?: Events[];
     roles?: Roles[];

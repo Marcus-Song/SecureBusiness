@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { Observable, BehaviorSubject, map, startWith, catchError, of, switchMap } from 'rxjs';
+import { Observable, BehaviorSubject, map, startWith, catchError, of, switchMap, pipe } from 'rxjs';
 import { CustomerStatus } from 'src/app/enum/customer-status';
 import { DataState } from 'src/app/enum/datastate.enum';
 import { ProfileState, CustomHttpResponse, Page, CustomerState } from 'src/app/interface/appstates';
@@ -21,6 +21,7 @@ export class CustomerComponent implements OnInit {
   isLoading$ = this.isLoadingSubject.asObservable();
   readonly DataState = DataState;
   readonly CustomerStatus = CustomerStatus;
+  userService: any;
 
   constructor(private activatedRoute: ActivatedRoute, private customerService: CustomerService) { }
 
@@ -53,7 +54,8 @@ export class CustomerComponent implements OnInit {
           this.dataSubject.next({ ...response, 
             data: {...response.data, 
               customer: {...response.data.customer, 
-              invoices: this.dataSubject.value.data.customer.invoices }} });
+                // Add time in the imageUrl so that image will update every time
+                imageUrl: `${response.data.user.imageUrl}?time=${new Date().getTime()}` }} });
           this.isLoadingSubject.next(false);
           return { dataState: DataState.LOADED, appData: this.dataSubject.value };
         }),
@@ -63,5 +65,32 @@ export class CustomerComponent implements OnInit {
           return of({ dataState: DataState.LOADED, appData: this.dataSubject.value, error })
         })
       )
+  }
+
+  updateImage(image: File): void {
+    if (image) {
+      console.log("updating Image");
+      this.isLoadingSubject.next(true);
+      this.customerState$ = this.customerService.updateImage$(this.getFormData(image), this.dataSubject.value.data.customer.id)
+        .pipe(
+          map(response => {
+            console.log(response);
+            
+            this.isLoadingSubject.next(false);
+            return { dataState: DataState.LOADED, appData: this.dataSubject.value };
+          }),
+          startWith({ dataState: DataState.LOADED, appData: this.dataSubject.value }),
+          catchError((error: string) => {
+            this.isLoadingSubject.next(false);
+            return of({ dataState: DataState.LOADED, appData: this.dataSubject.value, error })
+          })
+        )
+    }
+  }
+
+  private getFormData(image: File): FormData {
+    const formData = new FormData();
+    formData.append("image", image);
+    return formData;
   }
 }

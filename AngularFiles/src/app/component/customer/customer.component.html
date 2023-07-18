@@ -15,7 +15,13 @@
                     <div class="card mb-4">
                         <div class="card-body">
                         <div class="d-flex align-items-start">
-                            <img src="{{state.appData?.data?.customer?.imageUrl}}" style="position: relative; height: 56px; width: 56px;" class="rounded-circle avatar-lg img-thumbnail" alt="profile-image">
+                            <div class="img-circle text-center mb-3" >
+                                <span style="position: relative">
+                                   <img [src]="state.appData?.data?.customer?.imageUrl" alt="profile-image" class="shadow"  />
+                                    <i (click)="fileInput.click()" class="bi bi-camera-fill right-position"></i>
+                                </span>
+                             </div>
+                            
                             <div class="w-100 ms-4">
                                 <h1 class="my-0 fw-bold">{{state.appData?.data?.customer?.name}}</h1>
                                 <p class="" style="font-size: 13px;">{{state.appData?.data?.customer?.email}}</p>
@@ -23,8 +29,7 @@
                                 state.appData?.data?.customer?.status === CustomerStatus.PENDING ? 'bg-warning' : '',
                                 state.appData?.data?.customer?.status === CustomerStatus.BANNED ? 'bg-danger' : '',
                                 state.appData?.data?.customer?.status === CustomerStatus.INACTIVE ? 'bg-secondary' : '',
-                                state.appData?.data?.customer?.status === CustomerStatus.DRAFT ? 'bg-dark' : '',]"
-                                style="position: absolute;bottom:60px;left: 113px; top: 70px;font-size: 11px; height: 18px;">
+                                state.appData?.data?.customer?.status === CustomerStatus.DRAFT ? 'bg-dark' : '',]">
                                     {{state.appData?.data?.customer?.status}}
                                 </span>
                         </div>
@@ -166,3 +171,9 @@
         </section>
     </ng-container>
 </ng-container>
+
+<!-- profile image change form -->
+<form enctype="multipart/form-data" style="display:none;">
+    <input type="file" #fileInput (change)="updateImage($event.target.files[0])" name="image" id="image"
+       placeholder="file" ngModel accept="image/*" />
+ </form>

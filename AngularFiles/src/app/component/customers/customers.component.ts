@@ -1,3 +1,4 @@
+import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -9,6 +10,7 @@ import { Customer } from 'src/app/interface/customer';
 import { User } from 'src/app/interface/user';
 import { CustomerService } from 'src/app/service/customer.service';
 import { UserService } from 'src/app/service/user.service';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-customers',
@@ -24,6 +26,8 @@ export class CustomersComponent {
   showLogs$ = this.showLogSubject.asObservable();
   private currentPageSubject = new BehaviorSubject<number>(0);
   currentPage$ = this.currentPageSubject.asObservable();
+  private fileStatusSubject = new BehaviorSubject<{ status:string, type:string, percent:number }>(undefined);
+  fileStatus$ = this.fileStatusSubject.asObservable();
   readonly DataState = DataState;
   readonly CustomerStatus = CustomerStatus;
 
@@ -40,7 +44,7 @@ export class CustomersComponent {
         }),
         startWith({ dataState: DataState.LOADING }),
         catchError((error: string) => {
-          return of({ dataState: DataState.ERROR, error })
+          return of({ dataState: DataState.ERROR, error, appData: this.dataSubject.value })
         })
       )
   }
@@ -57,7 +61,7 @@ export class CustomersComponent {
         }),
         startWith({ dataState: DataState.LOADED, appData: this.dataSubject.value   }),
         catchError((error: string) => {
-          return of({ dataState: DataState.ERROR, error })
+          return of({ dataState: DataState.ERROR, error, appData: this.dataSubject.value })
         })
       )
   }
@@ -73,12 +77,48 @@ export class CustomersComponent {
         }),
         startWith({ dataState: DataState.LOADING, appData: this.dataSubject.value }),
         catchError((error: string) => {
-          return of({ dataState: DataState.ERROR, error })
+          return of({ dataState: DataState.ERROR, error, appData: this.dataSubject.value })
         })
       )
   }
 
   selectCustomer(customer: Customer): void {
     this.router.navigate([`/customers/${customer.id}`]);
+  }
+
+  report(): void {
+    this.customerState$ = this.customerService.downloadReport$()
+      .pipe(
+        map(response => {
+          console.log(response);
+          this.reportProgress(response);
+          return { dataState: DataState.LOADED, appData: this.dataSubject.value };
+        }),
+        startWith({ dataState: DataState.LOADING, appData: this.dataSubject.value }),
+        catchError((error: string) => {
+          return of({ dataState: DataState.ERROR, error, appData: this.dataSubject.value })
+        })
+      )
+  }
+
+  private reportProgress(httpEvent: HttpEvent<string[] | Blob>): void {
+    switch (httpEvent.type) {
+      case HttpEventType.DownloadProgress || HttpEventType.UploadProgress:
+        // Report progress
+        this.fileStatusSubject.next({ status: 'progress', type: 'downloading...', percent: Math.round(100 * httpEvent.loaded / httpEvent.total)});
+        break;
+      case HttpEventType.ResponseHeader:
+        console.log("Got response header", httpEvent);
+        // Report progress
+        break;
+      case HttpEventType.Response:
+        // Report progress
+        saveAs(new File([<Blob>httpEvent.body], httpEvent.headers.get('File-Name'), {type: `${httpEvent.headers.get('Content-Type')};charset=utf-8`}));
+        this.fileStatusSubject.next(undefined);
+        break;
+      default:
+        console.log(httpEvent)
+        break;
+    }
   }
 }

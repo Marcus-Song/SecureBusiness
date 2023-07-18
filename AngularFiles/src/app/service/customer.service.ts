@@ -1,18 +1,20 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { CustomHttpResponse, CustomerState, Page, Profile } from '../interface/appstates';
+import { HttpClient, HttpErrorResponse, HttpEvent, HttpHeaders } from '@angular/common/http';
+import { CustomHttpResponse, CustomerState, Page, Profile, ProfileState } from '../interface/appstates';
 import { Observable, catchError, tap, throwError } from 'rxjs';
 import { User } from '../interface/user';
 import { Stats } from '../interface/stats';
 import { Customer } from '../interface/customer';
 import { Invoice } from '../interface/invoice';
+import { CustomerComponent } from '../component/customer/customer.component';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CustomerService {
 
-  private readonly server: string = '/api';
+  //private readonly server: string = '/api';
+  private readonly server: string = 'http://localhost:8080';
 
   constructor(private http: HttpClient) { }
 
@@ -77,6 +79,29 @@ export class CustomerService {
 
   invoice$ = (invoiceId: number) => <Observable<CustomHttpResponse<Customer & User & Invoice>>>
     this.http.get<CustomHttpResponse<Customer & User & Invoice>>(`${this.server}/customer/invoice/get/${invoiceId}`)
+      .pipe(
+        tap(console.log),
+        catchError(this.handleError)
+      );
+
+  sendInvoiceEmail$ = (invoiceId: number, formData: FormData) =>
+    this.http.post
+      (`${this.server}/customer/invoice/send/${invoiceId}`, formData)
+      .pipe(
+        tap(console.log),
+        catchError(this.handleError)
+      ).subscribe((response) => { });
+
+  updateImage$ = (formData: FormData, customerId: number) => <Observable<ProfileState<CustomHttpResponse<CustomerState>>>>
+    this.http.patch<CustomHttpResponse<CustomerComponent>>
+      (`${this.server}/customer/update/image/${customerId}`, formData)
+      .pipe(
+        tap(console.log),
+        catchError(this.handleError)
+      );
+
+  downloadReport$ = () => <Observable<HttpEvent<Blob>>>
+    this.http.get(`${this.server}/customer/download/report`, { reportProgress:true, observe:'events', responseType:'blob' })
       .pipe(
         tap(console.log),
         catchError(this.handleError)

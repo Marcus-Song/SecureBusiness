@@ -8,6 +8,7 @@ import { Invoice } from 'src/app/interface/invoice';
 import { User } from 'src/app/interface/user';
 import { CustomerService } from 'src/app/service/customer.service';
 import { jsPDF as pdf } from 'jspdf';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-invoice',
@@ -21,7 +22,7 @@ export class InvoiceComponent implements OnInit {
   isLoading$ = this.isLoadingSubject.asObservable();
   readonly DataState = DataState;
 
-  constructor(private activatedRoute: ActivatedRoute, private customerService: CustomerService) { }
+  constructor(private activatedRoute: ActivatedRoute, private customerService: CustomerService, private http: HttpClient) { }
 
   ngOnInit(): void {
     this.invoiceState$ = this.activatedRoute.paramMap.pipe(
@@ -42,10 +43,27 @@ export class InvoiceComponent implements OnInit {
     );
   }
 
-  exportAsPDF(): void {
+  sendInvoice(invoiceId: number): void {
+    const doc = this.exportAsPDF(() => {
+      const formData = new FormData();
+      formData.append('pdf', doc.output('blob'), 'invoice.pdf');
+      this.customerService.sendInvoiceEmail$(invoiceId, formData);
+    });
+  }
+  
+  exportAsPDF(callback: () => void): any {
     const fileName = `invoice-${this.dataSubject.value.data['invoice']['invoiceNumber']}.pdf`;
     const doc = new pdf();
-    doc.html(document.getElementById('invoice'), { margin: 5, windowWidth: 1000, width: 200 , callback: (invoice) => {invoice.save(fileName);}});
+    doc.html(document.getElementById('invoice'), {
+      margin: 5,
+      windowWidth: 1000,
+      width: 200,
+      callback: () => {
+        doc.save(fileName);
+        callback(); // Call the callback function after saving the PDF
+      }
+    });
+    return doc;
   }
 
 }

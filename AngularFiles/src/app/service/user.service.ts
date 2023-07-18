@@ -6,6 +6,7 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { User } from '../interface/user';
 import { Key } from '../enum/key.enum';
 import { renewPassword, resetPassword } from '../interface/resetPassword';
+import { Customer } from '../interface/customer';
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +35,7 @@ export class UserService {
       );
 
   requestPasswordReset$ = (email: string) => <Observable<CustomHttpResponse<Profile>>>
-    this.http.get<CustomHttpResponse<Profile>>(`${this.server}/user/resetpassword/${email}`)
+    this.http.get<CustomHttpResponse<Profile>>(`${this.server}/user/resetpassword1/${email}`)
       .pipe(
         tap(console.log),
         catchError(this.handleError)

@@ -5,9 +5,9 @@
        <section>
           <div class="container">
              <div class="row mt-3">
-                <div class="progress">
-                   <div class="progress-bar bg-success" role="progressbar" aria-valuenow="" aria-valuemin="0" aria-valuemax="100">
-                      5%
+                <div *ngIf="(fileStatus$ | async) as status" class="progress">
+                   <div [style.width.%]="status.percent" class="progress-bar bg-success" role="progressbar" [aria-valuenow]="status.percent" aria-valuemin="0" aria-valuemax="100">
+                      {{ status.type }} {{ status.percent }} %
                    </div>
                  </div>
                
@@ -15,7 +15,7 @@
                    <h4 class="fs-2 fw-bold text-start">Customers</h4>
                 </div>
                 <div class="col" style="padding: 15px;">
-                   <h4 class="fw-bold text-end"><i style="cursor: pointer;color: green;font-size: 30px;" class="bi bi-file-earmark-excel"></i></h4>
+                   <h4 (click)="report()" class="fw-bold text-end"><i style="cursor: pointer;color: green;font-size: 30px;" class="bi bi-file-earmark-excel"></i></h4>
                 </div>
                 <div class="col-xm-12">
                    <table class="table table-hover">

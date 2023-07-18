@@ -22,6 +22,7 @@ import { CustomersComponent } from './component/customers/customers.component';
 import { InvoiceComponent } from './component/invoice/invoice.component';
 import { InvoicesComponent } from './component/invoices/invoices.component';
 import { NewinvoicesComponent } from './component/newinvoices/newinvoices.component';
+import { CacheInterceptor } from './interceptor/cache.interceptor';
 
 @NgModule({
   declarations: [
@@ -49,7 +50,9 @@ import { NewinvoicesComponent } from './component/newinvoices/newinvoices.compon
     DragDropModule, 
     BrowserAnimationsModule,
   ],
-  providers: [{ provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },],
+  providers: [{ provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
+              { provide: HTTP_INTERCEPTORS, useClass: CacheInterceptor, multi: true },
+             ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
