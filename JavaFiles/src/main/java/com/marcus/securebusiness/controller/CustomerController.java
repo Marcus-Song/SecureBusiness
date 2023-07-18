@@ -4,20 +4,29 @@ import com.marcus.securebusiness.dto.UserDTO;
 import com.marcus.securebusiness.model.Customer;
 import com.marcus.securebusiness.model.HttpResponse;
 import com.marcus.securebusiness.model.Invoice;
+import com.marcus.securebusiness.report.CustomerReport;
 import com.marcus.securebusiness.service.CustomerService;
 import com.marcus.securebusiness.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
 import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.MediaType.*;
 
 @Slf4j
 @RestController
@@ -98,6 +107,32 @@ public class CustomerController {
                         .build());
     }
 
+    @PatchMapping("/update/image/{customerId}")
+    public ResponseEntity<HttpResponse> updateCustomerImage(@PathVariable("customerId") Long customerId, @RequestParam("image") MultipartFile image) {
+        Customer customer = customerService.getCustomerById(customerId);
+        customerService.updateImage(customer, image);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .data(of("customer", customer))
+                        .timeStamp(now().toString())
+                        .message("Profile image updated")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    @GetMapping("/download/report")
+    public ResponseEntity<InputStreamResource> downloadReport() {
+        List<Customer> customers = new ArrayList<>();
+        customerService.getCustomers().iterator().forEachRemaining(customers::add);
+        CustomerReport report = new CustomerReport(customers);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("File-Name", "customer-report.xlsx");
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;File-Name=customer-report.xlsx");
+        return ResponseEntity.ok().contentType(parseMediaType("application/vnd.ms-excel"))
+                .headers(headers).body(report.export());
+    }
+
     // END - Customer
     // BEGIN - Invoice
 
@@ -153,6 +188,25 @@ public class CustomerController {
                         .status(OK)
                         .statusCode(OK.value())
                         .build());
+    }
+
+    @PostMapping("/invoice/send/{invoiceId}")
+    public ResponseEntity<HttpResponse> sendInvoiceEmailTest(@PathVariable("invoiceId") Long invoiceId, @RequestParam("pdf") MultipartFile pdf) {
+        log.info("sending attachment {} with email", invoiceId);
+        customerService.sendInvoiceEmail(invoiceId, pdf);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .data(of())
+                        .message("Invoice retrieved")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build());
+    }
+
+    @GetMapping(value = "/invoice/{fileName}", produces = APPLICATION_PDF_VALUE)
+    public byte[] getProfileImage(@PathVariable("fileName") String fileName) throws Exception {
+        return Files.readAllBytes(Paths.get(System.getProperty("user.home") + "/Download/invoices/" + fileName));
     }
 
     @PostMapping("/invoice/add-to-customer/{id}")

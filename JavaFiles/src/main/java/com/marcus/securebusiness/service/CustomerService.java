@@ -4,6 +4,7 @@ import com.marcus.securebusiness.model.Customer;
 import com.marcus.securebusiness.model.Invoice;
 import com.marcus.securebusiness.model.Stats;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface CustomerService {
     // Customer Functions
@@ -22,4 +23,8 @@ public interface CustomerService {
 
     Stats getStats();
     Double getCustomerTotal(Long customerId);
+
+    void sendInvoiceEmail(Long invoiceId, MultipartFile pdf);
+
+    void updateImage(Customer customer, MultipartFile image);
 }

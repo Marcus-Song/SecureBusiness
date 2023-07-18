@@ -80,7 +80,7 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             // Save URL in verification table
             jdbc.update(INSERT_VERIFICATION_QUERY, Map.of("userId", user.getId(), "url",verificationUrl));
             // Send email to user with verification URL
-            sendEmail(user.getFirstName(), user.getEmail(), verificationUrl, ACCOUNT);
+            sendEmail(user.getFirstName(), user.getEmail(), changeToFront(verificationUrl), ACCOUNT);
             //emailService.sendVerificationUrl(user.getFirstName(), user.getEmail(), verificationUrl, ACCOUNT);
             user.setEnabled(false);
             user.setNotLocked(true);
@@ -93,11 +93,26 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         }
     }
 
+    private String changeToFront(String verificationUrl) {
+        String newUrl = "";
+        for (int i=0; i<verificationUrl.length(); i++) {
+            try {
+                if (verificationUrl.substring(i, i+1).equals("8") &&
+                        verificationUrl.substring(i+1, i+2).equals("0") &&
+                        verificationUrl.substring(i+2, i+3).equals("8") &&
+                        verificationUrl.substring(i+3, i+4).equals("0")) {
+                    newUrl = verificationUrl.substring(0, i) + "4200" + verificationUrl.substring(i+4);
+                }
+            } catch (Exception exception) {throw new ApiException(exception.getMessage());}
+        }
+        return newUrl;
+    }
+
     private void sendEmail(String firstName, String email, String verificationUrl, VerificationType verificationType) {
         CompletableFuture<Void> future = CompletableFuture.runAsync(new Runnable() {
             @Override
             public void run() {
-                try { emailService.sendVerificationEmail(firstName, email, verificationUrl, ACCOUNT); }
+                try { emailService.sendVerificationEmail(firstName, email, verificationUrl, verificationType); }
                 catch (Exception exception) { throw new ApiException("An error occur while sending email in a different thread"); }
             }
         });
@@ -224,7 +239,7 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
             // If any error, throw exception with proper message
         } catch (Exception exception) {
             log.error(exception.getMessage());
-            throw new ApiException("An error occurred during update password.");
+            throw new ApiException(exception.getMessage());
         }
     }
 
@@ -292,13 +307,23 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
         try {
             jdbc.update(DELETE_VERIFICATION_CODE_BY_USER_ID, Map.of("id", userDTO.getId()));
             jdbc.update(INSERT_VERIFICATION_CODE_QUERY, Map.of("userId", userDTO.getId(), "code", verificationCode, "expirationDate", expirationDate));
-            //sendSMS(userDTO.getPhone(), "From: SecureBusiness \nVerification Code\n" + verificationCode);
+            newThreadSMS(userDTO.getPhone(), "From: SecureBusiness \nVerification Code\n" + verificationCode);
             log.info("Verification Code: "  + verificationCode);
             // If any error, throw exception with proper message
         }  catch (Exception exception) {
             log.error(exception.getMessage());
             throw new ApiException("An error occurred during the jdbc.update() in 'UserRepositoryImpl.class' Please try again later");
         }
+    }
+
+    private void newThreadSMS(String phone, String s) {
+        CompletableFuture<Void> future = CompletableFuture.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                try { sendSMS(phone, s); }
+                catch (Exception exception) { throw new ApiException("An error occur while sending email in a different thread"); }
+            }
+        });
     }
 
     @Override
@@ -332,6 +357,7 @@ public class UserRepositoryImpl implements UserRepository<User>, UserDetailsServ
                 jdbc.update(INSERT_PASSWORD_VERIFIACTION_QUERY, Map.of("userId", user.getId(), "url", verificationUrl, "expirationDate", expirationDate));
                 // TODO Send Email Notification
                 log.info("verification Url: {}", verificationUrl);
+                sendEmail(user.getFirstName(), user.getEmail(), changeToFront(verificationUrl), PASSWORD);
             }
         catch (Exception exception) {
             throw new ApiException("An error occur during reset password");

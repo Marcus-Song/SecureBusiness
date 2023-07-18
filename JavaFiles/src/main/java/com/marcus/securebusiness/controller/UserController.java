@@ -8,6 +8,7 @@ import com.marcus.securebusiness.model.HttpResponse;
 import com.marcus.securebusiness.model.User;
 import com.marcus.securebusiness.model.UserPrincipal;
 import com.marcus.securebusiness.provider.TokenProvider;
+import com.marcus.securebusiness.service.CustomerService;
 import com.marcus.securebusiness.service.EventService;
 import com.marcus.securebusiness.service.RoleService;
 import com.marcus.securebusiness.service.UserService;
@@ -49,6 +50,7 @@ import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 public class UserController {
     private final UserService userService;
     private final RoleService roleService;
+    private final CustomerService customerService;
     private final EventService eventService;
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
@@ -171,7 +173,7 @@ public class UserController {
                         .build());
     }
 
-    @GetMapping("/resetpassword/{email}")
+    @GetMapping("/resetpassword1/{email}")
     public ResponseEntity<HttpResponse> resetPassword(@PathVariable("email") String email) {
         userService.resetPassword(email);
         return ResponseEntity.ok().body(
@@ -183,7 +185,7 @@ public class UserController {
                         .build());
     }
 
-    @PostMapping("/resetpassword/{key}/{password}/{confirmPassword}")
+    @PostMapping("/resetpassword2/{key}/{password}/{confirmPassword}")
     public ResponseEntity<HttpResponse> resetPasswordWithKey(@PathVariable("key") String key,
                                                           @PathVariable("password") String password,
                                                           @PathVariable("confirmPassword") String confirmPassword) {

@@ -1,5 +1,8 @@
 package com.marcus.securebusiness.service.implementation;
 
+import com.marcus.securebusiness.dto.UserDTO;
+import com.marcus.securebusiness.enumeration.VerificationType;
+import com.marcus.securebusiness.exception.ApiException;
 import com.marcus.securebusiness.model.Customer;
 import com.marcus.securebusiness.model.Invoice;
 import com.marcus.securebusiness.model.Stats;
@@ -7,19 +10,27 @@ import com.marcus.securebusiness.repository.CustomerRepository;
 import com.marcus.securebusiness.repository.InvoiceRepository;
 import com.marcus.securebusiness.rowMapper.StatsRowMapper;
 import com.marcus.securebusiness.service.CustomerService;
+import com.marcus.securebusiness.service.EmailService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Map;
 
 import static com.marcus.securebusiness.query.StatsQuery.*;
+import static com.marcus.securebusiness.query.UserQuery.UPDATE_USER_IMAGE_QUERY;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.springframework.data.domain.PageRequest.of;
+import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentContextPath;
 
 @Service
 @Transactional
@@ -29,6 +40,7 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final InvoiceRepository invoiceRepository;
     private final NamedParameterJdbcTemplate jdbc;
+    private final EmailService emailService;
     @Override
     public Customer createCustomer(Customer customer) {
         customer.setCreateAt(new Date());
@@ -101,4 +113,73 @@ public class CustomerServiceImpl implements CustomerService {
             throw exception;
         }
     }
+
+    @Override
+    public void sendInvoiceEmail(Long invoiceId, MultipartFile pdf) {
+        //String attachment = setCustomerPdfUrl(invoiceId.toString());
+        String attachment = System.getProperty("user.home") + "/Download/invoices/" + invoiceId + ".pdf";
+        savePdf(invoiceId.toString(), pdf);
+        try {
+            log.info("customer service - sendInvoiceEmail with attachment: {}", attachment);
+            String name = invoiceRepository.findById(invoiceId).get().getCustomer().getName();
+            String email = invoiceRepository.findById(invoiceId).get().getCustomer().getEmail();
+            emailService.sendEmailWithAttachment(name, email, attachment, VerificationType.ATTACHMENT);
+        } catch (Exception exception) {
+            throw exception;
+        }
+    }
+
+    private void savePdf(String invoiceId, MultipartFile pdf) {
+        Path fileStorageLocation = Paths.get(System.getProperty("user.home") + "/Download/invoices/").toAbsolutePath().normalize();
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(fileStorageLocation);
+            } catch (Exception exception) {
+                log.error(exception.getMessage());
+                throw new ApiException("Unable to create directories to save pdf");
+            }
+            log.info("Created directories at: {}", fileStorageLocation);
+        }
+        try {
+            Files.copy(pdf.getInputStream(), fileStorageLocation.resolve(invoiceId + ".pdf"), REPLACE_EXISTING);
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException(exception.getMessage());
+        }
+        log.info("File saved in: {} Folder", fileStorageLocation);
+    }
+
+    @Override
+    public void updateImage(Customer customer, MultipartFile image) {
+        String imageUrl = setCustomerImageUrl(customer.getEmail());
+        saveImage(customer.getEmail(), image);
+        customer.setImageUrl(imageUrl);
+        customerRepository.save(customer);
+    }
+
+    private String setCustomerImageUrl(String email) {
+        return fromCurrentContextPath().path("/user/image/" + email + ".png").toUriString();
+    }
+
+    private void saveImage(String email, MultipartFile image) {
+        Path fileStorageLocation = Paths.get(System.getProperty("user.home") + "/Download/images/").toAbsolutePath().normalize();
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(fileStorageLocation);
+            } catch (Exception exception) {
+                log.error(exception.getMessage());
+                throw new ApiException("Unable to create directories to save image");
+            }
+            log.info("Created directories at: {}", fileStorageLocation);
+        }
+        try {
+            Files.copy(image.getInputStream(), fileStorageLocation.resolve(email + ".png"), REPLACE_EXISTING);
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            throw new ApiException(exception.getMessage());
+        }
+        log.info("File saved in: {} Folder", fileStorageLocation);
+    }
+
+
 }

@@ -4,7 +4,8 @@ import java.util.Locale;
 
 public enum VerificationType {
     ACCOUNT("ACCOUNT"),
-    PASSWORD("PASSWORD");
+    PASSWORD("PASSWORD"),
+    ATTACHMENT("ATTACHMENT");
 
     private final String type;
 

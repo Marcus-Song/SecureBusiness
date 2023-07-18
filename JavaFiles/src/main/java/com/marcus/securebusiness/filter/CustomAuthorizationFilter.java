@@ -31,13 +31,19 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
     private final TokenProvider tokenProvider;
     private static final String TOKEN_PREFIX = "Bearer ";
     private static final String HTTP_OPTIONS_METHOD = "OPTIONS";
-    private static final String[] PUBLIC_ROUTES = {"/user/register", "/user/login", "/user/verify/code", "/user/refresh/token", "user/image", "/user/new/password" };
+    private static final String[] PUBLIC_ROUTES = {"/user/register", "/user/login", "/user/verify/code",
+            "/user/refresh/token", "user/image", "/user/new/password", "/user/resetpassword1" };
     protected static final String EMAIL_KEY = "email";
     protected static final String TOKEN_KEY = "token";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
+            //if (shouldNotFilter(request)) filterChain.doFilter(request, response);
+            if (request.getRequestURI().contains("/user/resetpassword1")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
             String token = getToken(request);
             Long userId = getUserId(request);
             if (tokenProvider.isTokenValid(userId, token)) {
