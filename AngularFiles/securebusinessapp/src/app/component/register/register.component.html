@@ -1,0 +1,84 @@
+<section *ngIf="(registerState$ | async) as state" [ngSwitch]="state.dataState">
+    <div *ngIf="!state.registerSuccess" class="container">
+      <div class="row justify-content-center my-5">
+        <div class="col-md-6" style="margin-top: 50px;">
+          <div class="card">
+            <div class="card-body">
+              <div class="text-center">
+                <h1 class="col-md-11 fs-2 fw-bold"><i class="bi bi-safe"> </i> SecureBusiness</h1>
+                <p class="text-muted fs-5">Create an Account</p>
+              </div>
+              <div *ngIf="state.dataState === DataState.ERROR" class="alert alert-danger bg-danger text-light border-0 alert-dismissible fade show" role="alert">
+                {{ state.error }}
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <form #registerForm="ngForm" (ngSubmit)="register(registerForm)">
+                <div class="form-outline mb-4">
+                  <label class="form-label" for="email">First Name</label>
+                  <input type="text" [disabled]="state.dataState === DataState.LOADING" ngModel name="firstName" class="form-control" required minlength="2">
+                </div>
+                <div class="form-outline mb-4">
+                  <label for="lastName" class="form-label">Last name</label>
+                  <input type="text" [disabled]="state.dataState === DataState.LOADING" ngModel name="lastName" class="form-control" required minlength="2">
+                </div>
+                <div class="form-outline mb-4">
+                  <label for="password" class="form-label">Email Address</label>
+                  <input type="email" [disabled]="state.dataState === DataState.LOADING" ngModel name="email" class="form-control" required minlength="3">
+                </div>
+                <div class="form-outline mb-4">
+                  <label for="password" class="form-label">Password</label>
+                  <input type="password" [disabled]="state.dataState === DataState.LOADING" ngModel name="password" class="form-control" required minlength="4">
+                </div>
+                <div class="d-flex justify-content-center mb-4">
+                  <button [disabled]="state.dataState === DataState.LOADING || registerForm.invalid || registerForm.pristine" type="submit" class="btn btn-primary">
+                    <span *ngIf="state.dataState === DataState.LOADING" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="margin-right: 5px;"></span>
+                    <span *ngIf="state.dataState === DataState.LOADING">Saving...</span>
+                    <span *ngIf="!(state.dataState === DataState.LOADING)">Create Account</span>
+                  </button>
+                </div>
+              </form>
+              <div class="row mb-4">
+                <div class="col d-flex justify-content-center">
+                  <a [ngStyle]="{'pointer-events' : state.dataState === DataState.LOADING ? 'none' : 'auto'}" [routerLink]="['/login']">Account Login</a>
+                </div>
+                <div class="col">
+                  <a [ngStyle]="{'pointer-events' : state.dataState === DataState.LOADING ? 'none' : 'auto'}" [routerLink]="['/resetpassword']">Forgot password?</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Success screen -->
+    <div *ngIf="state.registerSuccess" class="container">
+      <div class="row justify-content-center my-5">
+        <div class="col-md-6" style="margin-top: 50px;">
+          <div class="card">
+            <div class="card-body">
+              <div class="text-center">
+                <h1 class="col-md-11 fs-2 fw-bold"><i class="bi bi-safe"> </i> SecureBusiness</h1>
+                <p class="text-muted fs-5">Create an Account</p>
+                <br>
+                <i class="bi bi-check-circle-fill" style="font-size: 80px;color: green;"></i>
+                <br><br>
+                <p class="mt-2" style="font-size: 20px;">Please access your email and confirm your account.</p>
+                <br>
+              </div>
+              <div class="row mb-4">
+                <div class="col d-flex justify-content-center">
+                  <a [routerLink]="['/login']">Account Login</a>
+                </div>
+                <div class="col">
+                  <a (click)="createAccountForm()" style="color: #0D6EFD; text-decoration: underline; cursor: pointer;">
+                    Create another account
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>

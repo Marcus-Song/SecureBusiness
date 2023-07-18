@@ -1,0 +1,125 @@
+<ng-container *ngIf="(newInvoiceState$ | async) as state" [ngSwitch]="state.dataState">
+   <ng-container *ngSwitchCase="DataState.LOADED">
+      <app-navbar [user]="state?.appData?.data?.user"></app-navbar>
+      <section>
+         <div class="container">
+            <nav aria-label="breadcrumb" style="margin-top: 8px;">
+               <ol class="breadcrumb">
+                  <li class="breadcrumb-item">
+                     <a href="/">Home</a>
+                  </li>
+                  <li class="breadcrumb-item"> <a href="/invoices">Invoices</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">New Invoice</li>
+               </ol>
+            </nav>
+            <form #invoiceForm="ngForm">
+               <div class="container-fluid">
+                  <div class="container">
+                     <div class="card">
+                        <div class="card-body">
+                           <!-- Title -->
+                           <div
+                              class="d-flex justify-content-between align-items-lg-center py-3 flex-column flex-lg-row">
+                              <h2 class="h5 mb-3 mb-lg-0 fw-bold fs-2"><a href="../../pages/admin/customers.html"
+                                    class="text-muted"><i class="bi bi-arrow-left-square me-2"></i></a> Create new
+                                 Invoice</h2>
+                           </div>
+                           <!-- Error and Message -->
+                           <div *ngIf="state.error" style="margin-bottom: 5px;"
+                              class="alert alert-danger bg-danger text-light border-0 alert-dismissible fade show"
+                              role="alert">
+                              {{ state.error }}
+                              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"
+                                 aria-label="Close"></button>
+                           </div>
+                           <div *ngIf="state.appData?.message" style="margin-bottom: 5px;"
+                              class="alert alert-success bg-success text-light border-0 alert-dismissible fade show"
+                              role="alert">
+                              {{ state.appData?.message }}
+                              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"
+                                 aria-label="Close"></button>
+                           </div>
+                           <!-- Main content -->
+
+                           <div class="row">
+                              <div class="col-md-12" style="margin-bottom: 15px;">
+                                 <div class="form-group">
+                                    
+                                    <!--<input type="text" ngModel name="services" class="form-control" required>-->
+                                    <div>
+                                       <button (click)="addBox()" class="btn btn-primary mt-5 mb-3">Add Services</button>
+                                       <div *ngFor="let box of serviceBoxes; let i = index;">
+                                          <div class="answer-box">
+                                             <div class="card">
+                                                <div class="card-body">
+                                                <div class="row">
+                                                   <div class="col-md-6">                                                      
+                                                      <input type="text" [(ngModel)]="box.service" name="service{{i}}"
+                                                         class="form-control" placeholder="Enter an service" required />
+                                                   </div>
+                                                   <div class="col-md-5">
+                                                      <input type="number" [(ngModel)]="box.price" name="price{{i}}" class="form-control"
+                                                         placeholder="Enter the price of the service" required />
+                                                   </div>
+                                                   <div class="col-md-2" style="position: absolute; top: -32px; left: 90%;">
+                                                      <button (click)="removeBox(i)" class="btn btn-danger mt-5"><i class="bi bi-x-lg"></i></button>
+                                                   </div>
+                                                </div>
+                                                </div>
+                                             </div>
+                                          
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="col-md-6" style="margin-bottom: 15px;">
+                                 <label>Customer</label>
+                                 <select ngModel name="customerId" class="form-control select-cl" required>
+                                    <option *ngFor="let customer of state.appData?.data?.customer"
+                                       [ngValue]="customer.id" [selected]="" [disabled]="">
+                                       {{ customer.name }}
+                                    </option>
+                                 </select>
+                              </div>
+                              <!--<div class="col-md-6" style="margin-bottom: 15px;">
+                                  <div class="form-group">
+                                     <label>Total</label>
+                                     <input type="total" ngModel="" name="total" class="form-control">
+                                  </div>
+                               </div>-->
+                              <div class="col-md-6" style="margin-bottom: 15px;">
+                                 <div class="form-group">
+                                    <label>Date</label>
+                                    <input type="date" ngModel name="date" class="form-control" required>
+                                 </div>
+                              </div>
+                              <div class="col-md-6" style="margin-bottom: 15px;">
+                                 <label>Status</label>
+                                 <select ngModel="PENDING" name="status" class="form-control" required>
+                                    <option value="PENDING">PENDING</option>
+                                    <option value="PAID">PAID</option>
+                                    <option value="CANCELED">CANCELED</option>
+                                    <option value="OVERDUE">OVERDUE</option>
+                                 </select>
+                              </div>
+                           </div>
+                           <div>
+                              <button [disabled]="(isLoading$ | async) || invoiceForm.invalid"
+                                 (click)="newInvoice(invoiceForm)" class="btn btn-primary mt-5"><i class="bi bi-save"
+                                    *ngIf="!(isLoading$ | async)"></i>
+                                 <span *ngIf="(isLoading$ | async)" class="spinner-border spinner-border-sm"
+                                    role="status" aria-hidden="true" style="margin-right: 5px;"></span>
+                                 <span class="text" *ngIf="(isLoading$ | async)"> Saving... </span>
+                                 <span class="text" *ngIf="!(isLoading$ | async)"> Save Inovice </span>
+                              </button>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </form>
+         </div>
+      </section>
+   </ng-container>
+</ng-container>

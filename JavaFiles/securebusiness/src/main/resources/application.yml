@@ -1,0 +1,8 @@
+Spring:
+  profiles:
+    active: dev
+
+  application:
+    title: SecureBusiness
+    version: 1.0
+
