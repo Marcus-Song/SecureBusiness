@@ -12,5 +12,4 @@ export interface Customer{
     phone: string;
     createdAt: Date;
     invoices?: Invoice[];
-    belongsTo?: String;
 }

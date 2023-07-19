@@ -22,7 +22,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import static com.marcus.securebusiness.query.StatsQuery.*;
@@ -42,9 +44,43 @@ public class CustomerServiceImpl implements CustomerService {
     private final NamedParameterJdbcTemplate jdbc;
     private final EmailService emailService;
     @Override
-    public Customer createCustomer(Customer customer) {
+    public Customer createCustomer(Customer customer, UserDTO userDTO) {
         customer.setCreateAt(new Date());
+        createCustomerHelper(customer, userDTO);
         return customerRepository.save(customer);
+    }
+
+    private void createCustomerHelper(Customer customer, UserDTO userDTO) {
+        try {
+                List<String> belongsTo = new ArrayList<>(findCustomerByEmail(customer.getEmail()).getBelongsTo());
+                Customer oldCustomer = findCustomerByEmail(customer.getEmail());
+                if (oldCustomer != null)
+                    customer = oldCustomer;
+                if (belongsTo.contains(userDTO.getEmail())) {
+                    log.error("Email: {} already exists in customer with id: {}", userDTO.getEmail(), customer.getId());
+                    throw new ApiException("You have already created the same customer");
+                }
+                if (belongsTo.contains(""))
+                    belongsTo = new ArrayList<>();
+                belongsTo.add(userDTO.getEmail());
+                customer.setBelongsTo(belongsTo);
+        } catch (Exception exception) {throw new ApiException("Error occur when create customer with message: "+exception.getMessage());}
+    }
+
+    private Customer findCustomerByEmail(String email) {
+        try {
+            List<Customer> customers = customerRepository.findAll();
+            List<Customer> output = new ArrayList<>();
+            for (Customer customer: customers) {
+                if (customer.getEmail().equals(email))
+                    output.add(customer);
+            }
+            if (output.size() == 0)
+                return null;
+            if (output.size() > 1)
+                log.warn("Find multiple customers: {} with email: {}", output.toString(), email);
+            return output.get(0);
+        } catch (Exception exception) {throw new ApiException("Error occur when finding customer by email"+exception.getMessage());}
     }
 
     @Override
@@ -70,6 +106,11 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Page<Customer> searchCustomers(String name, int page, int size) {
         return customerRepository.findByNameContaining(name, of(page,  size));
+    }
+
+    public Page<Customer> searchCustomerForUser(String name, int page, int size, UserDTO userDTO) {
+        Page<Customer> allCustomers = searchCustomers(name, page, size);
+        allCustomers.iterator()
     }
 
     @Override

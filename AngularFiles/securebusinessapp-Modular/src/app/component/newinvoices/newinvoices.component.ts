@@ -9,23 +9,24 @@ import { User } from 'src/app/interface/user';
 import { CustomerService } from 'src/app/service/customer.service';
 
 @Component({
-  selector: 'app-newcustomer',
-  templateUrl: './newcustomer.component.html',
-  styleUrls: ['./newcustomer.component.css']
+  selector: 'app-newinvoices',
+  templateUrl: './newinvoices.component.html',
+  styleUrls: ['./newinvoices.component.css']
 })
-export class NewcustomerComponent implements OnInit {
-  newCustomerState$: Observable<ProfileState<CustomHttpResponse<Page<Customer> & User>>>;
-  private dataSubject = new BehaviorSubject<CustomHttpResponse<Page<Customer> & User>>(null);
+export class NewinvoicesComponent implements OnInit {
+  newInvoiceState$: Observable<ProfileState<CustomHttpResponse<Customer[] & User>>>;
+  private dataSubject = new BehaviorSubject<CustomHttpResponse<Customer[] & User>>(null);
   private isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();
   readonly DataState = DataState;
   readonly CustomerStatus = CustomerStatus;
+  serviceBoxes: any[] = [];
 
   constructor(private customerServie: CustomerService) { }
 
   ngOnInit(): void {
     console.log("Loading");
-    this.newCustomerState$ = this.customerServie.customer$()
+    this.newInvoiceState$ = this.customerServie.newInvoice$()
       .pipe(
         map(response => {
           console.log(response);
@@ -39,16 +40,18 @@ export class NewcustomerComponent implements OnInit {
       )
   }
 
-  createCustomer(newCustomerForm: NgForm, user: User): void {
+  newInvoice(newInvoiceForm: NgForm): void {
+    this.dataSubject.next({...this.dataSubject.value, message: null});
     this.isLoadingSubject.next(true);
-    console.log("Loading");
-    this.newCustomerState$ = this.customerServie.newCustomer$(newCustomerForm.value)
+    newInvoiceForm.value.services = this.serviceBoxes.map(box => box.service)
+    newInvoiceForm.value.price = this.serviceBoxes.map(box => box.price)
+    newInvoiceForm.value.total = newInvoiceForm.value.price.reduce((sum, price) => sum + price, 0);
+    this.newInvoiceState$ = this.customerServie.createInvoice$(newInvoiceForm.value.customerId, newInvoiceForm.value)
       .pipe(
         map(response => {
           console.log(response);
-          newCustomerForm.reset({ type: "INDIVIDUAL", status: "ACTIVE" });
-          newCustomerForm.setValue({ 'belongsTo': user.email });
-          this.dataSubject.next(this.dataSubject.value);
+          newInvoiceForm.reset({ status: "PENDING" });
+          this.dataSubject.next(response);
           this.isLoadingSubject.next(false);
           return { dataState: DataState.LOADED, appData: this.dataSubject.value };
         }),
@@ -59,5 +62,23 @@ export class NewcustomerComponent implements OnInit {
         })
       )
   }
+
+  addBox() {
+    this.serviceBoxes.push({ service: '', price: '' });
+  }
+
+  removeBox(index: number) {
+    this.serviceBoxes.splice(index, 1);
+  }
+
+  submitForm(form: NgForm) {
+    if (form.valid) {
+      const services = this.serviceBoxes.map(box => box.service);
+      const price = this.serviceBoxes.map(box => box.price);
+      console.log(services, price);
+      // Here, you can perform further actions with the 'services' array
+    }
+  }
+
 
 }

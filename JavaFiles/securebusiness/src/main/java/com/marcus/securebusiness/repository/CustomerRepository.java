@@ -11,4 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Repository
 public interface CustomerRepository extends PagingAndSortingRepository<Customer, Long>, ListCrudRepository<Customer, Long> {
     Page<Customer> findByNameContaining(String name, Pageable pageable);
+
+    Customer findByEmail(String email);
 }

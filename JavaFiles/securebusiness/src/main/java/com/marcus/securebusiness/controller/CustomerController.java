@@ -87,7 +87,7 @@ public class CustomerController {
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("user", userService.getUserByEmail(userDTO.getEmail()),
-                                "customer", customerService.createCustomer(customer)))
+                                "customer", customerService.createCustomer(customer, userDTO)))
                         .message("Customer created")
                         .status(CREATED)
                         .statusCode(CREATED.value())

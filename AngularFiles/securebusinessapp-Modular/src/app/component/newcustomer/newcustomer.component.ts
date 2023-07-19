@@ -39,7 +39,7 @@ export class NewcustomerComponent implements OnInit {
       )
   }
 
-  createCustomer(newCustomerForm: NgForm, user: User): void {
+  createCustomer(newCustomerForm: NgForm): void {
     this.isLoadingSubject.next(true);
     console.log("Loading");
     this.newCustomerState$ = this.customerServie.newCustomer$(newCustomerForm.value)
@@ -47,7 +47,6 @@ export class NewcustomerComponent implements OnInit {
         map(response => {
           console.log(response);
           newCustomerForm.reset({ type: "INDIVIDUAL", status: "ACTIVE" });
-          newCustomerForm.setValue({ 'belongsTo': user.email });
           this.dataSubject.next(this.dataSubject.value);
           this.isLoadingSubject.next(false);
           return { dataState: DataState.LOADED, appData: this.dataSubject.value };

@@ -12,7 +12,7 @@
                    <li class="breadcrumb-item active" aria-current="page"> New Customer </li>
                 </ol>
              </nav>
-            <form #newCustomerForm="ngForm" (ngSubmit)="createCustomer(newCustomerForm, state.data?.user)"> 
+            <form #newCustomerForm="ngForm" (ngSubmit)="createCustomer(newCustomerForm)"> 
                 <div class="container-fluid">
                 <div class="container">
                 <!-- Title -->
@@ -84,6 +84,14 @@
                             <label class="form-label">Address Line 1</label>
                             <input type="text" ngModel name="address" class="form-control">
                         </div>
+                        <div class="mb-3">
+                            <div class="row">
+                                <label class="form-label col-2">Address Line 2</label>
+                                <label class="text-secondary col">Features currently disabled</label>
+                            </div>
+                            <input type="text" class="form-control">
+                        </div>
+                        
                         
                         </div>
                     </div>
@@ -117,8 +125,8 @@
                     <!-- Notes -->
                     <div class="card mb-4">
                         <div class="card-body">
-                        <h3 class="h3">Notes</h3>
-                        <textarea class="form-control" rows="1"></textarea>
+                        <h3 class="h6">Notes</h3>
+                        <textarea class="form-control" rows="6"></textarea>
                         </div>
                     </div>
                     </div>

@@ -48,14 +48,6 @@ export class CustomerService {
         catchError(this.handleError)
       );
 
-  searchPartialCustomer$ = (name: string = '', page: number = 0) => <Observable<CustomHttpResponse<Page<Customer> & User>>>
-    this.http.get<CustomHttpResponse<Page<Customer> & User>>
-      (`${this.server}/customer/search?name=${name}&page=${page}`)
-      .pipe(
-        tap(console.log),
-        catchError(this.handleError)
-      );
-
   update$ = (customer: Customer) => <Observable<CustomHttpResponse<CustomerState>>>
     this.http.post<CustomHttpResponse<CustomerState>>(`${this.server}/customer/update`, customer)
       .pipe(
@@ -109,7 +101,7 @@ export class CustomerService {
       );
 
   downloadReport$ = () => <Observable<HttpEvent<Blob>>>
-    this.http.get(`${this.server}/customer/download/report`, { reportProgress: true, observe: 'events', responseType: 'blob' })
+    this.http.get(`${this.server}/customer/download/report`, { reportProgress:true, observe:'events', responseType:'blob' })
       .pipe(
         tap(console.log),
         catchError(this.handleError)

@@ -1,5 +1,6 @@
 package com.marcus.securebusiness.service;
 
+import com.marcus.securebusiness.dto.UserDTO;
 import com.marcus.securebusiness.model.Customer;
 import com.marcus.securebusiness.model.Invoice;
 import com.marcus.securebusiness.model.Stats;
@@ -8,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface CustomerService {
     // Customer Functions
-    Customer createCustomer(Customer customer);
+    Customer createCustomer(Customer customer, UserDTO userDTO);
     Customer updateCustomer(Customer customer);
     Page<Customer> getCustomers(int page, int size);
     Iterable<Customer> getCustomers();
