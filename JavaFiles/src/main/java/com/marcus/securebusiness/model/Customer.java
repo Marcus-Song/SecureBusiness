@@ -1,16 +1,16 @@
 package com.marcus.securebusiness.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.marcus.securebusiness.enumeration.CustomerStatus;
+import com.marcus.securebusiness.util.StringListConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.FetchType.EAGER;
@@ -40,4 +40,6 @@ public class Customer {
     private Date createAt;
     @OneToMany(mappedBy = "customer", fetch = EAGER, cascade = ALL)
     private Collection<Invoice> invoices;
+    @Convert(converter = StringListConverter.class)
+    private List<String> belongsTo;
 }
